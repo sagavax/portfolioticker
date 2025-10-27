@@ -1,0 +1,19 @@
+body { font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif; margin: 24px; }
+    header { display:flex; align-items:baseline; gap:12px; }
+    h1 { margin: 0; font-size: 20px; }
+    .row { display:flex; gap: 16px; align-items:flex-end; flex-wrap: wrap; }
+    label { display:flex; flex-direction:column; font-size: 12px; gap:4px; }
+    input, select { padding:8px; border:1px solid #ddd; border-radius:8px; min-width:140px; }
+    button { padding:10px 14px; border:0; border-radius:10px; background:#111; color:#fff; cursor:pointer; }
+    button.secondary { background:#eee; color:#111; }
+    table { width:100%; border-collapse:collapse; margin-top: 16px; }
+    th, td { padding:10px; border-bottom:1px solid #eee; text-align:left; }
+    th { font-size:12px; text-transform:uppercase; letter-spacing:.04em; color:#666; }
+    .grid { display:grid; grid-template-columns: repeat(auto-fit, minmax(220px,1fr)); gap:12px; margin: 16px 0; }
+    .card { border:1px solid #eee; border-radius:12px; padding:14px; margin-top: 15px;}
+    .muted { color:#666; font-size:12px; }
+    .right { text-align:right; }
+    .note-count { display:inline-block; min-width:20px; height:20px; line-height:20px; text-align:center; border-radius:10px; background:#f0f4c3; color:#333; font-size:12px; margin-right:8px; padding:0 6px; border:1px solid #e0e0a0; }
+    /* editable cells for inline qty/price editing */
+    .editable-cell { background:#fffdf0; border-radius:4px; padding:6px; min-width:60px; }
+    .editable-cell:focus { outline:2px solid #ffd54f; background:#fff; }
