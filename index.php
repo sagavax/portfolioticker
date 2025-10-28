@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <title>Portforlio Tracker</title>
      <link rel="stylesheet" href="css/style.css" />
      <script type="module" src="js/main.js"></script>
 </head>
@@ -91,7 +91,7 @@
 
   <section class="card">
     <h2 style="margin-top:0">Transakcie</h2>
-    <table id="txTable">
+    <table id="transactionsTable">
       <thead>
         <tr><th>Dátum</th><th>Provider</th><th>Typ</th><th>Ticker</th><th>Qty</th><th>Cena</th><th>Mena</th><th class="right">—</th></tr>
       </thead>

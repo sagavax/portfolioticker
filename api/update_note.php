@@ -1,6 +1,22 @@
 <?php
 header('Content-Type: application/json');
-require_once '../includes/dbcoonnect.php';
+error_reporting(E_ALL);
+ini_set('display_errors', 0);
+
+// Mark this as an API request
+define('IS_API_REQUEST', true);
+
+// Check if file exists before require
+if (!file_exists('../includes/dbconnect.php')) {
+    http_response_code(500);
+    echo json_encode([
+        'success' => false,
+        'error' => 'Database connection file not found'
+    ]);
+    exit;
+}
+
+require_once '../includes/dbconnect.php';
 
 try {
     $input = json_decode(file_get_contents('php://input'), true);
