@@ -72,46 +72,13 @@
           alert('Neplatné číslo. Úprava zrušená.');
           return;
         }
-        
-        // Update DB first
-        fetch('api/update_transaction.php', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            id: id,
-            [field]: parsed
-          })
-        })
-        .then(response => response.json())
-        .then(result => {
-          if (result.status !== 'success') throw new Error(result.message || 'Failed to update transaction');
-          
-          // On success, update localStorage
-          const item = tx.find(t => t.id === id);
-          if (!item) return;
-          if (field === 'qty') item.qty = parsed;
-          else if (field === 'price') item.price = parsed;
-          save(KEY_TX, tx);
-          
-          // re-render to keep table consistent
-          loadPortfolio();
-        })
-        .catch(error => {
-          console.error('Failed to update in DB:', error);
-          // On error, update localStorage only
-          const item = tx.find(t => t.id === id);
-          if (!item) return;
-          if (field === 'qty') item.qty = parsed;
-          else if (field === 'price') item.price = parsed;
-          save(KEY_TX, tx);
-          
-          // re-render
-          loadPortfolio();
-          
-          alert('Zmena uložená lokálne (offline mód). Synchronizácia s DB zlyhala.');
-        });
+        const item = tx.find(t => t.id === id);
+        if (!item) return;
+        if (field === 'qty') item.qty = parsed;
+        else if (field === 'price') item.price = parsed;
+        save(KEY_TX, tx);
+        // re-render to keep table consistent (and recalc derived values if any)
+        loadPortfolio();
       });
 
       // allow Enter to commit edit
@@ -235,36 +202,35 @@
         ccy: ccy || BASE
       };
 
-      // Save to DB with localStorage fallback
-      fetch('api/save_transaction.php', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(transaction)
-      })
-      .then(response => response.json())
-      .then(result => {
-        if (result.status !== 'success') throw new Error(result.message || 'Failed to save transaction');
-        
-        // On success, update localStorage
-        tx.push(transaction);
-        save(KEY_TX, tx);
-        
-        // Refresh the UI
-        loadPortfolio();
-      })
-      .catch(error => {
-        console.error('Failed to save to DB:', error);
-        // On error, save to localStorage only
-        tx.push(transaction);
-        save(KEY_TX, tx);
-        
-        // Refresh the UI
-        loadPortfolio();
-        
-        alert('Transakcia uložená lokálne (offline mód). Synchronizácia s DB zlyhala.');
-      });
+      // Save to localStorage
+      tx.push(transaction);
+      save(KEY_TX, tx);
+
+      // Refresh the UI
+      loadPortfolio();
+
+      // OPTIONAL: if you want to also send to server, uncomment and adapt below
+      /*
+      const xhttp = new XMLHttpRequest();
+      xhttp.onreadystatechange = function() {
+        if (this.readyState == 4 && this.status == 200) {
+          // server saved OK
+        }
+      };
+      xhttp.open("POST", "portfolio_add.php", true);
+      xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+      const formData = new URLSearchParams({
+        date_of_transaction: date,
+        provider: provider,
+        type_of_transaction: type,
+        ticker: symbol || '',
+        quanty: qty || '0',
+        price: price || '0',
+        fee: fee || '0',
+        currency: ccy || BASE
+      }).toString();
+      xhttp.send(formData);
+      */
     }
 
 
@@ -289,60 +255,30 @@
  * Loads the portfolio from localStorage and displays it in the #txTable element.
  */
     function loadPortfolio() {
-      // Load from DB with localStorage fallback
-      fetch('api/get_transactions.php')
-        .then(response => response.json())
-        .then(result => {
-          if (result.status !== 'success') throw new Error(result.message || 'Failed to load transactions');
-          
-          const transactions = result.data;
-          // Update localStorage for offline access
-          save(KEY_TX, transactions);
-          
-          // Clear and render table
-          const tbody = document.querySelector('#txTable tbody');
-          if (!tbody) return;
-          
-          tbody.innerHTML = transactions.map(t => `
-            <tr>
-              <td>${t.date || ''}</td>
-              <td>${t.provider || ''}</td>
-              <td>${t.type || ''}</td>
-              <td>${t.symbol || ''}</td>
-              <td data-id="${t.id}" data-field="qty" contenteditable="true" class="editable-cell">${t.qty || ''}</td>
-              <td data-id="${t.id}" data-field="price" contenteditable="true" class="editable-cell">${isFinite(t.price) ? t.price : ''}</td>
-              <td>${t.ccy || ''}</td>
+      // Get transactions from localStorage
+      const transactions = load(KEY_TX, []);
+      
+      // Clear existing table content
+      const tbody = document.querySelector('#txTable tbody');
+      if (!tbody) return;
+      
+      // Generate table rows for each transaction (match table columns: date, provider, type, ticker, qty, price, fee, ccy, actions)
+      tbody.innerHTML = transactions.map(t => `
+        <tr>
+          <td>${t.date || ''}</td>
+          <td>${t.provider || ''}</td>
+          <td>${t.type || ''}</td>
+          <td>${t.symbol || ''}</td>
+          <td data-id="${t.id}" data-field="qty" contenteditable="true" class="editable-cell">${t.qty || ''}</td>
+          <td data-id="${t.id}" data-field="price" contenteditable="true" class="editable-cell">${isFinite(t.price) ? t.price : ''}</td>
+          <td>${t.ccy || ''}</td>
               <td class="right">
                   <span class="note-count" data-id="${t.id}" title="${(t.notes && t.notes.length ? (t.notes[0].text||'') : '') .replace(/"/g,'\"')}">${(t.notes && t.notes.length) ? t.notes.length : 0}</span>
-                  <button data-note="${t.id}" class="secondary">Pridať poznámku</button>
-                  <button data-del="${t.id}" class="secondary">Zmaž</button>
+                <button data-note="${t.id}" class="secondary">Pridať poznámku</button>
+                <button data-del="${t.id}" class="secondary">Zmaž</button>
               </td>
-            </tr>
-          `).join('');
-        })
-        .catch(error => {
-          console.error('Failed to load from DB:', error);
-          // Fallback to localStorage on error
-          const transactions = load(KEY_TX, []);
-          const tbody = document.querySelector('#txTable tbody');
-          if (!tbody) return;
-          tbody.innerHTML = transactions.map(t => `
-            <tr>
-              <td>${t.date || ''}</td>
-              <td>${t.provider || ''}</td>
-              <td>${t.type || ''}</td>
-              <td>${t.symbol || ''}</td>
-              <td data-id="${t.id}" data-field="qty" contenteditable="true" class="editable-cell">${t.qty || ''}</td>
-              <td data-id="${t.id}" data-field="price" contenteditable="true" class="editable-cell">${isFinite(t.price) ? t.price : ''}</td>
-              <td>${t.ccy || ''}</td>
-              <td class="right">
-                  <span class="note-count" data-id="${t.id}" title="${(t.notes && t.notes.length ? (t.notes[0].text||'') : '') .replace(/"/g,'\"')}">${(t.notes && t.notes.length) ? t.notes.length : 0}</span>
-                  <button data-note="${t.id}" class="secondary">Pridať poznámku</button>
-                  <button data-del="${t.id}" class="secondary">Zmaž</button>
-              </td>
-            </tr>
-          `).join('');
-        });
+        </tr>
+      `).join('');
     }
 
 
