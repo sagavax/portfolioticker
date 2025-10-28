@@ -356,9 +356,18 @@
         return;
       }
       listEl.innerHTML = item.notes.map((n, idx) => {
-        const date = n.createdAt ? new Date(n.createdAt).toLocaleString() : '';
+        const created = n.createdAt ? new Date(n.createdAt).toLocaleString() : '';
+        const modified = n.modifiedAt ? `(upravené ${new Date(n.modifiedAt).toLocaleString()})` : '';
+        const date = modified ? `${created} ${modified}` : created;
         const text = String(n.text || '').replace(/\n/g, '<br>');
-        return `<div style="padding:6px 0;border-bottom:1px solid #eee"><div style="font-size:12px;color:#666;margin-bottom:6px">${date} <button data-editnote="${idx}" data-id="${item.id}" style="margin-left:8px;" class="secondary">Upraviť</button><button data-delnote="${idx}" data-id="${item.id}" style="margin-left:8px;" class="secondary">Zmazať</button></div><div>${text}</div></div>`;
+        return `<div style="padding:6px 0;border-bottom:1px solid #eee">
+          <div style="font-size:12px;color:#666;margin-bottom:6px">
+            ${date}
+            <button data-editnote="${idx}" data-id="${item.id}" style="margin-left:8px;" class="secondary">Upraviť</button>
+            <button data-delnote="${idx}" data-id="${item.id}" style="margin-left:8px;" class="secondary">Zmazať</button>
+          </div>
+          <div>${text}</div>
+        </div>`;
       }).join('');
     }
 
@@ -391,30 +400,82 @@
         const item = tx.find(t => t.id === id);
         if (!item) return;
         if (!item.notes) item.notes = [];
+
         // check if editing existing note
         const editIdx = noteModal?.dataset?.editIndex;
-        if (typeof editIdx !== 'undefined') {
-          const idx = parseInt(editIdx, 10);
-          if (!isNaN(idx) && idx >= 0 && idx < item.notes.length) {
-            item.notes[idx].text = text;
-            item.notes[idx].modifiedAt = new Date().toISOString();
-            save(KEY_TX, tx);
-            loadPortfolio();
-            renderNotesInModal(id);
+        const editNoteId = noteModal?.dataset?.editNoteId;
+        if (typeof editIdx !== 'undefined' && editNoteId) {
+          // Update existing note in DB
+          fetch('api/update_note.php', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              id: editNoteId,
+              text: text
+            })
+          })
+          .then(response => response.json())
+          .then(result => {
+            if (result.status !== 'success') throw new Error(result.message || 'Failed to update note');
+            
+            // Update localStorage on success
+            const idx = parseInt(editIdx, 10);
+            if (!isNaN(idx) && idx >= 0 && idx < item.notes.length) {
+              item.notes[idx].text = text;
+              item.notes[idx].modifiedAt = result.data.modified_at;
+              save(KEY_TX, tx);
+              loadPortfolio();
+              renderNotesInModal(id);
+            }
             // clear edit state and textarea
             delete noteModal.dataset.editIndex;
+            delete noteModal.dataset.editNoteId;
             if (el('#noteText')) el('#noteText').value = '';
-            return;
-          }
+          })
+          .catch(error => {
+            console.error('Failed to update note in DB:', error);
+            alert('Chyba pri ukladaní poznámky do DB.');
+          });
+          return;
         }
-        // otherwise add new note
-        item.notes.push({ text, createdAt: new Date().toISOString() });
-        save(KEY_TX, tx);
-        // refresh UI and modal list
-        loadPortfolio();
-        renderNotesInModal(id);
-        // clear textarea but keep modal open for adding more
-        if (el('#noteText')) el('#noteText').value = '';
+
+        // Add new note to DB
+        fetch('api/save_note.php', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            transaction_id: id,
+            text: text
+          })
+        })
+        .then(response => response.json())
+        .then(result => {
+          if (result.status !== 'success') throw new Error(result.message || 'Failed to save note');
+          
+          // Update localStorage on success
+          item.notes.push({
+            id: result.data.id,
+            text: text,
+            createdAt: result.data.created_at,
+            modifiedAt: result.data.modified_at
+          });
+          save(KEY_TX, tx);
+          
+          // refresh UI and modal list
+          loadPortfolio();
+          renderNotesInModal(id);
+          
+          // clear textarea but keep modal open for adding more
+          if (el('#noteText')) el('#noteText').value = '';
+        })
+        .catch(error => {
+          console.error('Failed to save note to DB:', error);
+          alert('Chyba pri ukladaní poznámky do DB.');
+        });
       });
     }
     if (noteCancelBtn) {
@@ -437,22 +498,66 @@
       });
     }
 
-    // Handle delete buttons inside noteExistingList
+    // Handle delete/edit buttons inside noteExistingList
     const noteExistingList = el('#noteExistingList');
     if (noteExistingList) {
       noteExistingList.addEventListener('click', (e) => {
-        const delIdx = e.target?.dataset?.delnote;
         const parentId = e.target?.dataset?.id;
+        const item = tx.find(t => t.id === parentId);
+        if (!item || !item.notes) return;
+
+        // Handle delete
+        const delIdx = e.target?.dataset?.delnote;
         if (typeof delIdx !== 'undefined' && parentId) {
-          const item = tx.find(t => t.id === parentId);
-          if (!item || !item.notes) return;
           const idx = parseInt(delIdx, 10);
           if (!isNaN(idx) && idx >= 0 && idx < item.notes.length) {
             if (!confirm('Naozaj zmazať túto poznámku?')) return;
-            item.notes.splice(idx, 1);
-            save(KEY_TX, tx);
-            renderNotesInModal(parentId);
-            loadPortfolio();
+            
+            const note = item.notes[idx];
+            if (!note?.id) return; // need DB id to delete
+            
+            fetch('api/delete_note.php', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+              },
+              body: JSON.stringify({
+                id: note.id
+              })
+            })
+            .then(response => response.json())
+            .then(result => {
+              if (result.status !== 'success') throw new Error(result.message || 'Failed to delete note');
+              
+              // Update localStorage on success
+              item.notes.splice(idx, 1);
+              save(KEY_TX, tx);
+              renderNotesInModal(parentId);
+              loadPortfolio();
+            })
+            .catch(error => {
+              console.error('Failed to delete note from DB:', error);
+              alert('Chyba pri mazaní poznámky z DB.');
+            });
+          }
+          return;
+        }
+
+        // Handle edit
+        const editIdx = e.target?.dataset?.editnote;
+        if (typeof editIdx !== 'undefined' && parentId) {
+          const idx = parseInt(editIdx, 10);
+          if (!isNaN(idx) && idx >= 0 && idx < item.notes.length) {
+            const note = item.notes[idx];
+            if (!note) return;
+            
+            // Set edit mode and populate textarea
+            noteModal.dataset.editIndex = idx;
+            noteModal.dataset.editNoteId = note.id;
+            if (el('#noteText')) {
+              el('#noteText').value = note.text || '';
+              el('#noteText').focus();
+            }
           }
         }
       });
