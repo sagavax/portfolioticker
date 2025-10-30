@@ -20,8 +20,9 @@ try {
     $sql = "SELECT `id`, `date`, `provider`, `symbol`, `type`, `qty`, `price`, `ccy`
         FROM `transactions`
         ORDER BY `date` DESC, `id` DESC";
-    
-    $result = mysqli_query($link, $sql);
+    //echo $sql;
+
+    $result = mysqli_query($link, $sql) or die('Query failed: ' . mysqli_error($link));
     
     if ($result === false) {
         throw new Exception('Query error: ' . mysqli_error($link));

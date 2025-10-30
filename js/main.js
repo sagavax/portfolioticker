@@ -7,7 +7,8 @@ const type = document.querySelector('select[name="type"]'); // Transaction type 
 const quantity = document.querySelector('input[name="qty"]'); // Quantity input field
 const price = document.querySelector('input[name="price"]'); // Price input field
 const ccy = document.querySelector('select[name="ccy"]'); // Currency select field
-const transactionsTable = document.getElementById("transactionsTable");
+const transactionsTable = document.getElementById("transactionsTable"); // Transactions table container
+const notesListClose = document.getElementById("notesListClose"); // Notes list modal close button
 
 
 document.addEventListener("DOMContentLoaded", loadPortfolio);
@@ -37,20 +38,88 @@ transactionsTable.addEventListener('click', function(e) {
     if (e.target && e.target.matches("button[data-del]")) {
         const transactionId = e.target.getAttribute("data-del");
         deleteTransaction(transactionId);
-    } if (e.target && e.target.matches("button[data-note]")) {
+    } 
+    
+    if (e.target && e.target.matches("button[data-note]")) {
         const transactionId = e.target.getAttribute("data-note");
         showNoteModal(transactionId);
     }
 
-    if( e.target && e.target.matches("span.note-count")) {
+    if (e.target && e.target.matches("span.note-count")) {
         const transactionId = e.target.getAttribute("data-id");
-         document.getElementById("notesListModal").style.display = 'flex';
-        //notesListModal(transactionId);
+        notesListModal(transactionId); // TOTO
+    }
+});
+
+let saveTimeout;
+let isSaving = false;
+
+transactionsTable.addEventListener('focusout', function(e) {
+    if (e.target.matches('td[contenteditable="true"]')) {
+        clearTimeout(saveTimeout);
+        
+        saveTimeout = setTimeout(() => {
+            if (isSaving) {
+                console.log('Už beží request, preskakujem...');
+                return;
+            }
+            
+            isSaving = true;
+            
+            const id = e.target.getAttribute('data-id');
+            const field = e.target.getAttribute('data-field');
+            const value = e.target.textContent.trim();
+            
+            console.log(`Ukladám: ID=${id}, field=${field}, value=${value}`);
+            
+            const xhttp = new XMLHttpRequest();
+            
+            xhttp.onreadystatechange = function() {
+                if (this.readyState === 4) {
+                    isSaving = false; // Uvoľni flag
+                    
+                    if (this.status === 200) {
+                        console.log('✓ Uložené');
+                    } else {
+                        console.error('✗ Chyba pri ukladaní');
+                    }
+                }
+            };
+            
+            xhttp.open("POST", "portfolio_update.php", true);
+            xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+            xhttp.send(`id=${id}&field=${field}&value=${value}`);
+            
+        }, 500); // Počká 500ms po poslednom focusout
     }
 });
 
 
+ noteSaveBtn.addEventListener('click', () => {
+ });
 
+
+ noteCancelBtn.addEventListener('click', () => {
+        // clear textarea and close
+        if (el('#noteText')) el('#noteText').value = '';
+        if (noteModal) {
+          delete noteModal.dataset.currentId;
+          noteModal.style.display = 'none';
+        }
+      });
+ noteModal.addEventListener('click', (e) => {
+        if (e.target === noteModal) {
+          if (el('#noteText')) el('#noteText').value = '';
+          delete noteModal.dataset.currentId;
+          noteModal.style.display = 'none';
+        }
+      });
+
+
+
+notesListClose.addEventListener('click', function(e) {
+    document.getElementById("notesListModal").style.display = 'none';
+});
 
 async function saveTransaction(date, provider, ticker, type, quantity, price, ccy) {
     //console.log('Saving transaction:', date, provider, ticker, type, quantity, price, ccy);
@@ -168,15 +237,62 @@ async function removeFromPortfolio(transactionId) {
   
 }
 
-async function notesListModal(transactionId) {
-    document.getElementById("notesListModal").style.display = 'flex';
+/* function notesListModal(transactionId) {
+    const notesListModal = document.getElementById("notesListModal");
+    console.log('Opening notes for transaction ID: ' + transactionId);
+    const notesListContent = document.getElementById("notesListContent");
+    notesListModal.style.display = 'flex';
+    console.log('Opening notes for transaction ID: ' + transactionId);
+    notesListContent.innerHTML = '<p>Loading notes...</p>';
+    
     const xhttp = new XMLHttpRequest();
     xhttp.onreadystatechange = function() {
-        if (this.readyState === 4 && this.status === 200) {
-            document.getElementById("notesListModal").innerHTML = this.responseText;
+        if (this.readyState === 4) {
+            if (this.status === 200) {
+                notesListContent.innerHTML = this.responseText;
+            } else {
+                notesListContent.innerHTML = '<p>Error loading notes.</p>';
+            }
         }
     };
     xhttp.open("POST", "notes.php", true);
     xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
     xhttp.send(`id=${transactionId}`);
+} */
+
+function notesListModal(transactionId) {
+    const notesListModal = document.getElementById('notesListModal'); // BEZ #
+    const notesListContent = document.getElementById('notesListContent');
+    
+    if (!notesListModal || !notesListContent) return;
+    
+    notesListModal.style.display = 'flex';
+    notesListContent.innerHTML = '<p>Loading notes...</p>';
+
+    const xhttp = new XMLHttpRequest();
+    xhttp.onreadystatechange = function() {
+        if (this.readyState === 4) {
+            if (this.status === 200) {
+                notesListContent.innerHTML = this.responseText;
+            } else {
+                notesListContent.innerHTML = '<p>Error loading notes.</p>';
+            }
+        }
+    };
+    xhttp.open("POST", "notes.php", true);
+    xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+    xhttp.send(`id=${transactionId}`);
+}
+
+async function updateTransaction(id, field, value) {
+    const xhttp = new XMLHttpRequest();
+    xhttp.onreadystatechange = function() {
+        if (this.readyState === 4 && this.status === 200) {
+            alert('Transaction updated successfully!');
+            loadPortfolio(); // Refresh portfolio data
+        }
+    };
+    xhttp.open("POST", "portfolio_update.php", true);
+    xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+    xhttp.send(`id=${id}&field=${field}&value=${value}`);
 }
