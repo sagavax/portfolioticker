@@ -93,7 +93,7 @@
     <h2 style="margin-top:0">Transakcie</h2>
     <table id="transactionsTable">
       <thead>
-        <tr><th>Dátum</th><th>Provider</th><th>Typ</th><th>Ticker</th><th>Qty</th><th>Cena</th><th>Mena</th><th class="right">—</th></tr>
+        <tr><th>Dátum</th><th>Provider</th><th>Typ</th><th>Ticker</th><th>Qty</th><th>Cena</th><th>Mena</th><th class="right">—</th><th></th><th></th></tr>
       </thead>
       <tbody></tbody>
     </table>
@@ -103,10 +103,10 @@
 
 <!-- Note modal -->
 <div id="noteModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);align-items:center;justify-content:center;z-index:9999;">
-  <div style="background:#fff;padding:16px;border-radius:6px;max-width:600px;width:90%;box-shadow:0 10px 30px rgba(0,0,0,0.2);">
+  <div style="background:#fff;border-radius:6px;max-width:600px;width:90%;box-shadow:0 10px 30px rgba(0,0,0,0.2);box-sizing: border-box; padding:10px;">
     <h3 style="margin-top:0">Pridať poznámku</h3>
-  <div id="noteExistingList" style="max-height:160px;overflow:auto;margin-bottom:8px;border:1px solid #f0f0f0;padding:8px;border-radius:6px;background:#fafafa;font-size:13px;color:#222"></div>
-  <textarea id="noteText" placeholder="Napíš novú poznámku sem..." style="width:100%;height:120px;margin-bottom:8px;padding:8px;font-size:14px"></textarea>
+  <!-- <div id="noteExistingList" style="max-height:160px;overflow:auto;margin-bottom:8px;border:1px solid #f0f0f0;padding:8px;border-radius:6px;background:#fafafa;font-size:13px;color:#222"></div> -->
+  <textarea id="noteText" placeholder="Napíš novú poznámku sem..." style="width:100%;height:120px;margin-bottom:8px;padding:8px;font-size:14px;box-sizing:border-box"></textarea>
     <div style="text-align:right">
       <button id="noteCancel" class="secondary" style="margin-right:8px">Zrušiť</button>
       <button id="noteSave">Uložiť</button>

@@ -9,7 +9,8 @@ const price = document.querySelector('input[name="price"]'); // Price input fiel
 const ccy = document.querySelector('select[name="ccy"]'); // Currency select field
 const transactionsTable = document.getElementById("transactionsTable"); // Transactions table container
 const notesListClose = document.getElementById("notesListClose"); // Notes list modal close button
-
+const noteSaveBtn = document.querySelector('#noteSave');
+const noteCancelBtn = document.querySelector('#noteCancel');
 
 document.addEventListener("DOMContentLoaded", loadPortfolio);
 
@@ -96,17 +97,42 @@ transactionsTable.addEventListener('focusout', function(e) {
 
 
  noteSaveBtn.addEventListener('click', () => {
+      xhttp = new XMLHttpRequest();
+      const noteModal = document.getElementById("noteModal");
+      const noteText = document.getElementById("noteText");
+      const transactionId = noteModal.dataset.currentId;
+      const noteContent = noteText.value.trim();
+      if (noteContent === '') {
+          alert('Note content cannot be empty');
+          return;
+      }
+      xhttp.onreadystatechange = function() {
+          if (this.readyState === 4) {
+              if (this.status === 200) {
+                  console.log('Note saved successfully');
+                  // Optionally, refresh notes list or update UI
+                  noteText.value = '';
+              } else {
+                  console.error('Error saving note');
+              }
+          }
+      }
+      xhttp.open("POST", "note_create.php", true);
+      xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+      xhttp.send(`transactionId=${transactionId}&noteContent=${noteContent}`);
+      noteModal.style.display = 'none';
  });
 
 
  noteCancelBtn.addEventListener('click', () => {
         // clear textarea and close
-        if (el('#noteText')) el('#noteText').value = '';
+        if (document.querySelector('#noteText')) document.querySelector('#noteText').value = '';
         if (noteModal) {
           delete noteModal.dataset.currentId;
           noteModal.style.display = 'none';
         }
       });
+
  noteModal.addEventListener('click', (e) => {
         if (e.target === noteModal) {
           if (el('#noteText')) el('#noteText').value = '';
@@ -295,4 +321,12 @@ async function updateTransaction(id, field, value) {
     xhttp.open("POST", "portfolio_update.php", true);
     xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
     xhttp.send(`id=${id}&field=${field}&value=${value}`);
+}
+
+function showNoteModal(transactionId) {
+    const noteModal = document.getElementById("noteModal");
+    const noteText = document.getElementById("noteText");
+    noteModal.dataset.currentId = transactionId;
+    noteModal.style.display = 'flex';
+    noteText.focus();
 }
