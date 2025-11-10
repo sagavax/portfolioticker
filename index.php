@@ -112,7 +112,7 @@
     <h2 style="margin-top:0">Transakcie</h2>
     <table id="transactionsTable">
       <thead>
-        <tr><th>Dátum</th><th>Provider</th><th>Typ</th><th>Ticker</th><th>Category</th><th>Qty</th><th>Cena</th><th>Mena</th><th class="right">—</th><th></th><th></th></tr>
+        <!-- <tr><th>Dátum</th><th>Provider</th><th>Typ</th><th>Ticker</th><th>Category</th><th>Qty</th><th>Cena</th><th>Mena</th><th></th><th></th><th class="right">—</th></tr> -->
       </thead>
       <tbody></tbody>
     </table>

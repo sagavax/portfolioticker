@@ -241,7 +241,7 @@ function renderTransactionsTable(rows = []) {
     <thead>
       <tr>
         <th>Dátum</th><th>Broker</th><th>Ticker</th><th>Typ</th>
-        <th>Kategória</th><th>Množstvo</th><th>Cena</th><th>Mena</th>
+        <th>Kategória</th><th>Množstvo</th><th>Cena</th><th>Mena</th><th>bla</th><th>bla</th>
       </tr>
     </thead>`;
   
@@ -260,6 +260,8 @@ function renderTransactionsTable(rows = []) {
       <td data-id="${r.id}" data-field="qty" contenteditable="true" class="text-right">${qty}</td>
       <td data-id="${r.id}" data-field="price" contenteditable="true" class="text-right">${price}</td>
       <td>${escapeHtml(r.ccy)}</td>
+      <td></td>
+      <td></td>
       <td class="right">
         <span class="note-count" data-id="${r.id}" title="Poznámky">0</span>
         <button class="secondary" data-note="${r.id}">Poznamka +</button>
