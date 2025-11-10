@@ -243,7 +243,7 @@ function renderTransactionsTable(rows = []) {
     <thead>
       <tr>
         <th>Dátum</th><th>Broker</th><th>Ticker</th><th>Typ</th>
-        <th>Kategória</th><th>Množstvo</th><th>Cena</th><th>Mena</th><th>bla</th><th>bla</th>
+        <th>Kategória</th><th>Množstvo</th><th>Cena</th><th>Mena</th><th>Akcie</th>
       </tr>
     </thead>`;
   
@@ -262,8 +262,6 @@ function renderTransactionsTable(rows = []) {
       <td data-id="${r.id}" data-field="qty" contenteditable="true" class="text-right">${qty}</td>
       <td data-id="${r.id}" data-field="price" contenteditable="true" class="text-right">${price}</td>
       <td>${escapeHtml(r.ccy)}</td>
-      <td></td>
-      <td></td>
       <td class="right">
         <span class="note-count" data-id="${r.id}" title="Poznámky">0</span>
         <button class="secondary" data-note="${r.id}">Poznamka +</button>
@@ -376,23 +374,32 @@ async function deleteTransaction(transactionId) {
 
 
 async function filterTransactions(filterName) {
+    const box = document.getElementById("transactionsTable");
+    if (!box) return;
+    
     try {
+        box.innerHTML = '<div class="loading">Filtrujem...</div>';
+        
         const response = await fetchWithTimeout('portfolio_filter.php', {
             method: 'POST',
             headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
             body: `filter=${filterName}`
         }, 10000);
         
-        if (response.ok) {
-            const portfolioTable = document.getElementById("portfolioTable");
-            if (portfolioTable) {
-                portfolioTable.innerHTML = await response.text();
-            }
+        if (!response.ok) {
+            throw new Error(`HTTP ${response.status}`);
+        }
+        
+        const data = await response.json();
+        
+        if (data.success && data.transactions) {
+            box.innerHTML = renderTransactionsTable(data.transactions);
         } else {
-            console.error('Filter failed:', response.status);
+            box.textContent = "Chyba: " + (data.error || "Neznáma chyba");
         }
     } catch (error) {
         console.error('Error filtering transactions:', error);
+        box.textContent = `Chyba pri filtrovaní: ${error.message}`;
     }
 }
 

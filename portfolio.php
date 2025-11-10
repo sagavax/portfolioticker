@@ -21,7 +21,7 @@ try {
         FROM `transactions`
         ORDER BY `date` DESC, `id` DESC";
     
-    $result = mysqli_query($link, $sql);
+    $result = mysqli_query($link, $sql) or die('Query failed: ' . mysqli_error($link));
     
     if ($result === false) {
         throw new Exception('Query error: ' . mysqli_error($link));
