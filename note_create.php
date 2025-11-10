@@ -14,7 +14,7 @@
 
     $insert_sql = "INSERT INTO transactions (date, provider, type, symbol, qty, price, ccy) 
                    VALUES (?, ?, ?, ?, ?, ?, ?)";
-    $stmt = $conn->prepare($insert_sql);
+    $stmt = $link->prepare($insert_sql);
     $stmt->bind_param('ssssdds', $date, $provider, $type, $symbol, $quantity, $price, $ccy);
     $stmt->execute();
     $stmt->close();
