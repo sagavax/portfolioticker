@@ -14,6 +14,15 @@ const noteSaveBtn = document.querySelector('#noteSave');
 const noteCancelBtn = document.querySelector('#noteCancel');
 const transactionsFilter = document.querySelector(".transactionsFilter"); // Transactions filter container
 
+// Utility function for fetch with timeout
+function fetchWithTimeout(url, options = {}, timeout = 10000) {
+    return Promise.race([
+        fetch(url, options),
+        new Promise((_, reject) => 
+            setTimeout(() => reject(new Error('Request timeout')), timeout)
+        )
+    ]);
+}
 
 //
 document.addEventListener("DOMContentLoaded", loadPortfolio);
@@ -62,7 +71,7 @@ transactionsTable.addEventListener('focusout', function(e) {
     if (e.target.matches('td[contenteditable="true"]')) {
         clearTimeout(saveTimeout);
         
-        saveTimeout = setTimeout(() => {
+        saveTimeout = setTimeout(async () => {
             if (isSaving) {
                 console.log('Už beží request, preskakujem...');
                 return;
@@ -76,54 +85,57 @@ transactionsTable.addEventListener('focusout', function(e) {
             
             console.log(`Ukladám: ID=${id}, field=${field}, value=${value}`);
             
-            const xhttp = new XMLHttpRequest();
-            
-            xhttp.onreadystatechange = function() {
-                if (this.readyState === 4) {
-                    isSaving = false; // Uvoľni flag
-                    
-                    if (this.status === 200) {
-                        console.log('✓ Uložené');
-                    } else {
-                        console.error('✗ Chyba pri ukladaní');
-                    }
+            try {
+                const response = await fetchWithTimeout('portfolio_update.php', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                    body: `id=${id}&field=${field}&value=${value}`
+                }, 10000);
+                
+                if (response.ok) {
+                    console.log('✓ Uložené');
+                } else {
+                    console.error('✗ Chyba pri ukladaní:', response.status);
                 }
-            };
-            
-            xhttp.open("POST", "portfolio_update.php", true);
-            xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
-            xhttp.send(`id=${id}&field=${field}&value=${value}`);
-            
-        }, 500); // Počká 500ms po poslednom focusout
+            } catch (error) {
+                console.error('✗ Chyba pri ukladaní:', error);
+            } finally {
+                isSaving = false;
+            }
+        }, 500);
     }
 });
 
 
- noteSaveBtn.addEventListener('click', () => {
-      xhttp = new XMLHttpRequest();
+noteSaveBtn.addEventListener('click', async () => {
       const noteModal = document.getElementById("noteModal");
       const noteText = document.getElementById("noteText");
       const transactionId = noteModal.dataset.currentId;
       const noteContent = noteText.value.trim();
+      
       if (noteContent === '') {
           alert('Note content cannot be empty');
           return;
       }
-      xhttp.onreadystatechange = function() {
-          if (this.readyState === 4) {
-              if (this.status === 200) {
-                  console.log('Note saved successfully');
-                  // Optionally, refresh notes list or update UI
-                  noteText.value = '';
-              } else {
-                  console.error('Error saving note');
-              }
+      
+      try {
+          const response = await fetchWithTimeout('note_create.php', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+              body: `transactionId=${transactionId}&noteContent=${encodeURIComponent(noteContent)}`
+          }, 10000);
+          
+          if (response.ok) {
+              console.log('Note saved successfully');
+              noteText.value = '';
+              noteModal.style.display = 'none';
+          } else {
+              throw new Error(`HTTP ${response.status}`);
           }
+      } catch (error) {
+          console.error('Error saving note:', error);
+          alert('Failed to save note: ' + error.message);
       }
-      xhttp.open("POST", "note_create.php", true);
-      xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
-      xhttp.send(`transactionId=${transactionId}&noteContent=${noteContent}`);
-      noteModal.style.display = 'none';
  });
 
 
@@ -158,69 +170,59 @@ transactionsFilter.addEventListener('click', function(e) {
 });
 
 async function saveTransaction(date, provider, ticker, type, category, quantity, price, ccy) {
-    //console.log('Saving transaction:', date, provider, ticker, type, quantity, price, ccy);
-    // Here you would typically send the data to the server using fetch or XMLHttpRequest
-    const xhttp = new XMLHttpRequest();
-    
-    xhttp.onreadystatechange = async function() {
-        if (this.readyState === 4 && this.status === 200) {
+    try {
+        const params = new URLSearchParams({
+            date, provider, ticker, type, category, quantity, price, ccy
+        });
+        
+        const response = await fetchWithTimeout('portfolio_add.php', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+            body: params.toString()
+        }, 10000);
+        
+        if (response.ok) {
             alert('Transaction saved successfully!');
-            await countPortfolio(); // Refresh portfolio data
-            // Optionally, reset the form or update the UI
-            await loadPortfolio(); // Refresh portfolio data
             txForm.reset();
+            // Refresh portfolio only once
+            await Promise.all([loadPortfolio(), countPortfolio()]);
+        } else {
+            throw new Error(`HTTP ${response.status}`);
         }
-    };
-    //xhttp.open("POST", "api/transactions/transaction_add.php", true);
-    xhttp.open("POST", "portfolio_add.php", true);
-    xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
-    xhttp.send(`date=${date}&provider=${provider}&ticker=${ticker}&type=${type}&category=${category}&quantity=${quantity}&price=${price}&ccy=${ccy}`);
-    /*
-    
-date 2025-10-31
-provider Robinhood
-ticker
-type BUY
-category STOCK,
-quantity 1
-price 20
-ccy EUR
-
-*/
-
+    } catch (error) {
+        console.error('Error saving transaction:', error);
+        alert('Failed to save transaction: ' + error.message);
+    }
 }
 
 
 async function loadPortfolio() {
-  const xhttp = new XMLHttpRequest();
-  xhttp.onreadystatechange = function () {
-    if (this.readyState !== 4) return;
-    const box = document.getElementById("transactionsTable");
-    if (!box) return;
+  const box = document.getElementById("transactionsTable");
+  if (!box) return;
+  
+  try {
+    box.innerHTML = '<div class="loading">Načítavam portfólio...</div>';
     
-    if (this.status === 200) {
-      try {
-        const data = JSON.parse(this.responseText.trim());
-        
-        // OPRAVA: posielaj data.transactions, nie celý data objekt
-        if (data.success && data.transactions) {
-          box.innerHTML = renderTransactionsTable(data.transactions);
-        } else {
-          box.textContent = "Chyba: " + (data.error || "Neznáma chyba");
-        }
-      } catch (e) {
-        console.error("JSON parse error:", e);
-        console.warn("RAW 200 response:", this.responseText);
-        box.textContent = "Chybný JSON.";
-      }
-    } else {
-      console.error("HTTP", this.status);
-      console.error("RAW error response:", this.responseText);
-      box.textContent = "Nepodarilo sa načítať portfólio (HTTP " + this.status + ").";
+    const response = await fetchWithTimeout('portfolio.php', {
+      method: 'GET'
+    }, 15000);
+    
+    if (!response.ok) {
+      throw new Error(`HTTP ${response.status}`);
     }
-  };
-  xhttp.open("GET", "portfolio.php", true);
-  xhttp.send();
+    
+    const text = await response.text();
+    const data = JSON.parse(text.trim());
+    
+    if (data.success && data.transactions) {
+      box.innerHTML = renderTransactionsTable(data.transactions);
+    } else {
+      box.textContent = "Chyba: " + (data.error || "Neznáma chyba");
+    }
+  } catch (error) {
+    console.error("Error loading portfolio:", error);
+    box.textContent = `Nepodarilo sa načítať portfólio: ${error.message}`;
+  }
 }
 
 function escapeHtml(s = "") {
@@ -275,20 +277,23 @@ function renderTransactionsTable(rows = []) {
 
 
 async function removeFromPortfolio(transactionId) {
-    const xhttp = new XMLHttpRequest();
-    
-    xhttp.onreadystatechange = async function() {
-        if (this.readyState === 4 && this.status === 200) {
+    try {
+        const response = await fetchWithTimeout('portfolio_delete.php', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+            body: `id=${transactionId}`
+        }, 10000);
+        
+        if (response.ok) {
             alert('Transaction removed successfully!');
-            await loadPortfolio(); // Refresh portfolio data
-            await countPortfolio();
+            await Promise.all([loadPortfolio(), countPortfolio()]);
+        } else {
+            throw new Error(`HTTP ${response.status}`);
         }
-    };
-    
-    xhttp.open("POST", "portfolio_delete.php", true);
-    xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
-    xhttp.send(`id=${transactionId}`);
-  
+    } catch (error) {
+        console.error('Error removing transaction:', error);
+        alert('Failed to remove transaction: ' + error.message);
+    }
 }
 
 /* function notesListModal(transactionId) {
@@ -314,8 +319,8 @@ async function removeFromPortfolio(transactionId) {
     xhttp.send(`id=${transactionId}`);
 } */
 
-function notesListModal(transactionId) {
-    const notesListModal = document.getElementById('notesListModal'); // BEZ #
+async function notesListModal(transactionId) {
+    const notesListModal = document.getElementById('notesListModal');
     const notesListContent = document.getElementById('notesListContent');
     
     if (!notesListModal || !notesListContent) return;
@@ -323,19 +328,22 @@ function notesListModal(transactionId) {
     notesListModal.style.display = 'flex';
     notesListContent.innerHTML = '<p>Loading notes...</p>';
 
-    const xhttp = new XMLHttpRequest();
-    xhttp.onreadystatechange = function() {
-        if (this.readyState === 4) {
-            if (this.status === 200) {
-                notesListContent.innerHTML = this.responseText;
-            } else {
-                notesListContent.innerHTML = '<p>Error loading notes.</p>';
-            }
+    try {
+        const response = await fetchWithTimeout('notes.php', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+            body: `id=${transactionId}`
+        }, 10000);
+        
+        if (response.ok) {
+            notesListContent.innerHTML = await response.text();
+        } else {
+            notesListContent.innerHTML = '<p>Error loading notes.</p>';
         }
-    };
-    xhttp.open("POST", "notes.php", true);
-    xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
-    xhttp.send(`id=${transactionId}`);
+    } catch (error) {
+        console.error('Error loading notes:', error);
+        notesListContent.innerHTML = '<p>Error loading notes: ' + error.message + '</p>';
+    }
 }
 
 async function updateTransaction(id, field, value) {
@@ -368,15 +376,24 @@ async function deleteTransaction(transactionId) {
 
 
 async function filterTransactions(filterName) {
-    const xhttp = new XMLHttpRequest();
-    xhttp.onreadystatechange = function() {
-        if (this.readyState === 4 && this.status === 200) {
-            document.getElementById("portfolioTable").innerHTML = this.responseText;
+    try {
+        const response = await fetchWithTimeout('portfolio_filter.php', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+            body: `filter=${filterName}`
+        }, 10000);
+        
+        if (response.ok) {
+            const portfolioTable = document.getElementById("portfolioTable");
+            if (portfolioTable) {
+                portfolioTable.innerHTML = await response.text();
+            }
+        } else {
+            console.error('Filter failed:', response.status);
         }
-    };
-    xhttp.open("POST", "portfolio_filter.php", true);
-    xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
-    xhttp.send(`filter=${filterName}`);
+    } catch (error) {
+        console.error('Error filtering transactions:', error);
+    }
 }
 
 /* async function removeFromPortfolio(transactionId) {
@@ -396,18 +413,18 @@ async function filterTransactions(filterName) {
 } */
 
 
-    async function countPortfolio() {
-        // Implementation here
-        const xhttp = new XMLHttpRequest();
+async function countPortfolio() {
+    try {
+        const response = await fetchWithTimeout('portfolio_count.php', {
+            method: 'GET'
+        }, 10000);
         
-        xhttp.onreadystatechange = function() {
-            if (this.readyState === 4 && this.status === 200) {
-                //alert('Transaction removed successfully!');
-                document.getElementById("positionsCount").innerHTML = this.responseText;
-            }
-        };
-        
-        xhttp.open("GET", "portfolio_count.php", true);
-        xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
-        xhttp.send();
-        };
+        if (response.ok) {
+            const text = await response.text();
+            const countEl = document.getElementById("positionsCount");
+            if (countEl) countEl.innerHTML = text;
+        }
+    } catch (error) {
+        console.error('Error counting portfolio:', error);
+    }
+}
