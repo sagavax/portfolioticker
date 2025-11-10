@@ -33,6 +33,9 @@
       <label>Provider
         <select name="provider" required>
           <option value="Robinhood">Robinhood</option>
+          <option value="Binance">Binance</option>
+          <option value="Binance">Bybit</option>
+          <option value="Pionex">Pionex</option>
           <option value="XTB">XTB</option>
           <option value="eToro">eToro</option>
           <option value="Interactive Brokers">Interactive Brokers</option>
@@ -54,6 +57,15 @@
           <option value="WITHDRAW">WITHDRAW</option>
           <option value="DIVIDEND">DIVIDEND</option>
           <option value="FEE">FEE</option>
+        </select>
+      </label>
+      <label>Kategória
+        <select name="category">
+          <option value="STOCKS">Akcie</option>
+          <option value="ETF">ETF</option>
+          <option value="FUND">Fondy</option>
+          <option value="BOND">Dlhopisy</option>
+          <option value="CRYPTO">Crypto</option>
         </select>
       </label>
       <label>Ticker <input name="symbol" placeholder="AAPL, MSFT..." /></label>
@@ -90,10 +102,17 @@
   </section> -->
 
   <section class="card">
+    <h2 style="margin-top:0">Filter</h2>
+    <div class= "transactionsFilter">
+      <button name="StocksFilter" class="secondary">Akcie</button><button name="FundsFilter" class="secondary">Fondy</button></button><button name="BondsFilter" class="secondary">Dlhopisy</button><button name="cryptoFilter" class="secondary">Crypto</button><button name="AllFilter" class="secondary">Všetko</button>
+    </div>
+  </section> 
+
+  <section class="card">
     <h2 style="margin-top:0">Transakcie</h2>
     <table id="transactionsTable">
       <thead>
-        <tr><th>Dátum</th><th>Provider</th><th>Typ</th><th>Ticker</th><th>Qty</th><th>Cena</th><th>Mena</th><th class="right">—</th><th></th><th></th></tr>
+        <tr><th>Dátum</th><th>Provider</th><th>Typ</th><th>Ticker</th><th>Category</th><th>Qty</th><th>Cena</th><th>Mena</th><th class="right">—</th><th></th><th></th></tr>
       </thead>
       <tbody></tbody>
     </table>

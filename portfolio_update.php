@@ -11,6 +11,7 @@
     $date = $_POST['date'] ?? null;
     $provider = $_POST['provider'] ?? null;
     $type = $_POST['type'] ?? null;
+    $category = $_POST['category'] ?? null;
     $symbol = $_POST['symbol'] ?? null;
     $quantity = $_POST['quantity'] ?? null;
     $price = $_POST['price'] ?? null;
@@ -18,10 +19,10 @@
 
 
     $update_sql = "UPDATE transactions 
-                   SET date = ?, provider = ?, type = ?, symbol = ?, qty = ?, price = ?, ccy = ? 
+                   SET date = ?, provider = ?, type = ?, category = ?, symbol = ?, qty = ?, price = ?, ccy = ? 
                    WHERE id = ?";
     $stmt = $conn->prepare($update_sql);
-    $stmt->bind_param('ssssddsi', $date, $provider, $type, $symbol, $quantity, $price, $ccy, $transaction_id);
+    $stmt->bind_param('ssssddsi', $date, $provider, $type, $category, $symbol, $quantity, $price, $ccy, $transaction_id);
     $stmt->execute();
     $stmt->close();
     echo json_encode(['success' => true]);

@@ -17,12 +17,11 @@ try {
     
     mysqli_set_charset($link, 'utf8mb4');
     
-    $sql = "SELECT `id`, `date`, `provider`, `symbol`, `type`, `qty`, `price`, `ccy`
+    $sql = "SELECT `id`, `date`, `provider`, `symbol`, `type`, `category`,`qty`, `price`, `ccy`
         FROM `transactions`
         ORDER BY `date` DESC, `id` DESC";
-    //echo $sql;
-
-    $result = mysqli_query($link, $sql) or die('Query failed: ' . mysqli_error($link));
+    
+    $result = mysqli_query($link, $sql);
     
     if ($result === false) {
         throw new Exception('Query error: ' . mysqli_error($link));

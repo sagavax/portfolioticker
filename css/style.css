@@ -17,3 +17,7 @@ body { font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif; marg
     /* editable cells for inline qty/price editing */
     .editable-cell { background:#fffdf0; border-radius:4px; padding:6px; min-width:60px; }
     .editable-cell:focus { outline:2px solid #ffd54f; background:#fff; }
+    .transactionsFilter {
+      display: flex;
+      gap: 10px;
+    }
