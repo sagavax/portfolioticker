@@ -25,7 +25,7 @@ function fetchWithTimeout(url, options = {}, timeout = 10000) {
 }
 
 //
-document.addEventListener("DOMContentLoaded", loadPortfolio);
+//document.addEventListener("DOMContentLoaded", loadPortfolio);
 
 
 txForm.addEventListener('submit', function(e) {

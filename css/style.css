@@ -5,20 +5,77 @@ body { font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif; marg
     label { display:flex; flex-direction:column; font-size: 12px; gap:4px; }
     input, select { padding:8px; border:1px solid #ddd; border-radius:8px; min-width:140px; }
     button { padding:10px 14px; border:0; border-radius:6px; background: #eefbfe; color:#111; cursor:pointer; }
-    button.secondary { background: #eefbfe; color:#111; }
+    button.secondary { background: #eefbfe; color:#111; display: flex; align-items: center; gap:10px; }
     table { width:100%; border-collapse:collapse; margin-top: 16px; }
     th, td { padding:10px; border-bottom:1px solid #eee; text-align:left; }
     th { font-size:12px; text-transform:uppercase; letter-spacing:.04em; color:#eefbfe; }
     tbody tr:hover {  background: rgba(31, 91, 143, 0.9); }
     .grid { display:grid; grid-template-columns: repeat(auto-fit, minmax(220px,1fr)); gap:12px; margin: 16px 0; }
-    .card { border:1px solid #eee; border-radius:12px; padding:14px; margin-top: 15px;background-color: #355C7E}
+    .card { border:1px solid #eee; border-radius:12px; padding:14px; margin-top: 15px;background-color: #435B7C; }
     .muted { color:#666; font-size:12px; }
     .right { text-align:right; }
-    .note-count { display:inline-block; min-width:40px; height:40px; line-height:40px; text-align:center; border-radius:10px; background:#f0f4c3; background-color:#295780; color: #eefbfe; font-size:16px; margin-right:8px; padding:0 6px; border:1px solid #e0e0a0; font-weight: bold; cursor: pointer;}
+    .note-count { display:flex; min-width:40px; height:40px; line-height:40px; text-align:center; border-radius:10px; background:#f0f4c3; background-color:#295780; color: #eefbfe; font-size:20px; margin-right:8px; padding:0 6px; border:1px solid #e0e0a0; font-weight: bold; cursor: pointer; align-items: center; justify-content: center; width:70px }
     /* editable cells for inline qty/price editing */
-    .editable-cell { background:#fffdf0; border-radius:4px; padding:6px; min-width:60px; }
-    .editable-cell:focus { outline:2px solid #ffd54f; background:#fff; }
-    .transactionsFilter {
-      display: flex;
-      gap: 10px;
+    .editable-cell { background-color: #6080ac; padding:6px; min-width:60px; }
+    /* .editable-cell:focus { outline:2px solid #ffd54f; background:#fff; } */
+    /* .editable-cell:hover { background-color: #233342} */
+    .editable-cell:focus { outline:2px solid #253649; background-color: #233342; }
+    .transactionsFilter {display: flex;gap: 10px;}
+    #txForm select, #txForm input {font-size: 16px; font-weight: bold;}
+    #txForm button {height:37px; font-size: 16px; font-weight: bold; display: flex; align-items: center; gap:10px}
+
+    .overlay {
+     display: none;   
+    justify-content: center;
+    align-items: center;    
+    width:100vw;
+    height:100vh;
+    position: fixed;
+    top:0;
+    left:0;
+    background: rgba(0,0,0,0.8);
+    z-index: 100;
+      }
+
+
+    #transactionsTable tbody tr:hover {
+      cursor: pointer;
+      background-color: #233342
+     }
+
+     #transactionsTable tbody tr:hover > .editable-cell {
+      cursor: pointer;
+      background-color: #233342
+     }
+
+
+     .logon_information {
+    height:200px;
+    width: 30%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: #fff;
+    border: 2px #d1d1d1 solid;
+    border-radius: 6px;
+    color:#222;
+    gap:10px;
+    }
+
+    .logon_information >i {
+        font-size: 100px;
+    }
+
+    .logon_information > p {
+        font-size: 20px;
+        text-align: center;
+        font-weight: bold;
+    }
+
+    .success >i{
+        color: #54cd54;
+    }
+
+    .error > i{
+        color: #e86c6c;
     }

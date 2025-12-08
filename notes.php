@@ -12,9 +12,9 @@
                       WHERE transaction_id = ? 
                       ORDER BY created_at DESC";
 
-    echo $get_notes_sql;
+    //echo $get_notes_sql;
 
-    $stmt = $conn->prepare($get_notes_sql);
+    $stmt = $link->prepare($get_notes_sql);
     $stmt->bind_param('i', $transaction_id);
     $stmt->execute();
     $result = $stmt->get_result();
@@ -22,4 +22,4 @@
 
     $notes = $result->fetch_all(MYSQLI_ASSOC);
 
-    echo json_encode($notes);
+    //echo json_encode($notes);
