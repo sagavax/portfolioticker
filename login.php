@@ -1,4 +1,6 @@
 <?php
+error_reporting(E_ALL);
+ini_set('display_errors', 1);
 
 session_start();
 include "includes/dbconnect.php";
@@ -13,14 +15,14 @@ if(isset($_POST['login'])){
             
       $get_login="select * from users where login = '$username' and password = '$password'";
       $result = mysqli_query($link, $get_login) or die("MySQL ERROR: " . mysqli_error($link));
-      //echo $sql;
+      echo $get_login;
       //$row = mysqli_fetch_array($db,$result);
       $overeni = mysqli_num_rows($result);
-      //echo "Pocet riadkov:".$overeni;
+      echo "Pocet riadkov:".$overeni;
       
       if($overeni == 1) {
           $_SESSION['login'] = stripslashes($username);
-          $row = mysqli_fetch_array($result);
+          //$row = mysqli_fetch_array($result);
           echo "<div class='overlay'><div class='logon_information success'><i class='fa fa-check-circle'></i></div></div>"; 
           echo "<script>setTimeout(function(){
             window.location = 'index.php';
@@ -32,8 +34,7 @@ if(isset($_POST['login'])){
             echo "<script>setTimeout(function(){
               window.location = 'login.php';
             }, 3000)</script>";
-            /*echo "<script>alert('Bad username or password');
-         location.href='index.php';</script>";*/
+            
           }
       }
  ?>
@@ -42,7 +43,7 @@ if(isset($_POST['login'])){
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Keep login</title>
+    <title>Portforlio Tracker</title>
     <link rel="stylesheet" type="text/css" href="css/login.css?<?php echo time(); ?>">
     <link rel="stylesheet" type="text/css" href="css/style.css?<?php echo time(); ?>">
 	<link href='https://fonts.googleapis.com/css?family=Noto+Sans:400,700,400italic,700italic' rel='stylesheet' type='text/css'>
