@@ -7,3 +7,20 @@
         $row = mysqli_fetch_array($result);
         return $row['note_count'];
     }
+
+    function GetCountPosiotions(){
+        global $link;
+        $get_positions = "SELECT Count(*) as position_count from transactions";
+        $result = mysqli_query($link, $get_positions) or die("MySQLi ERROR: ".mysqli_error($link));
+        $row = mysqli_fetch_array($result);
+        return $row['position_count'];
+    }
+
+
+    function GetPortfolioValue(){
+        global $link;
+        $get_positions = "SELECT SUM(qty*price) as portfolio_value from transactions";
+        $result = mysqli_query($link, $get_positions) or die("MySQLi ERROR: ".mysqli_error($link));
+        $row = mysqli_fetch_array($result);
+        return floor($row['portfolio_value']);
+    }

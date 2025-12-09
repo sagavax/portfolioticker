@@ -22,22 +22,22 @@
      <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
      <link rel="icon" type="image/png" sizes="32x32" href="investment.png">
      <script type="module" src="js/main.js?<?php echo time() ?>"></script>
+     <script defer src="js/loin.js?<?php echo time() ?>"></script>
 </head>
 <body>
     <header>
-    <h1>Portfolio Ticker</h1>
-    <span class="muted">vanilla JS + localStorage</span>
-  </header>
+      <a href="."><img src="portfolio-ticker-logo.svg" alt="Portfolio Ticker"></a>
+    </header>
 
   <section class="grid">
     <div class="card">
       <div class="muted">Hodnota portfólia</div>
-      <div id="portfolioValue" style="font-size:24px;font-weight:700">—</div>
+      <div id="portfolioValue" style="font-size:24px;font-weight:700"><?php echo GetPortfolioValue(); ?></div>
       <div id="portfolioPnL" class="muted">P/L: —</div>
     </div>
     <div class="card">
       <div class="muted">Počet pozícií</div>
-      <div id="positionsCount" style="font-size:24px;font-weight:700">—</div>
+      <div id="positionsCount" style="font-size:24px;font-weight:700"><?php echo GetCountPosiotions(); ?></div>
       <div id="cashInfo" class="muted">Hotovosť: —</div>
     </div>
   </section>
@@ -147,7 +147,7 @@
                 $fee = $row['fee'];
                 $ccy = $row['ccy'];
                 $created_at = $row['created_at'];
-                echo "<tr><td>$symbol</td><td>$type</td><td>$category</td><td class='editable-cell' contenteditable='true' data-id='$idx'>$qty</td><td contenteditable='true' class='editable-cell'data-id='$idx'>$price</td><td>$fee</td><td>$ccy</td><td>$created_at</td><td><span class='note-count' data-id='$idx' title='Poznámky'>".GetCountNotes($idx)."</span></td><td><div style='display:flex; justify-content:flex-end'><button data-note='$idx' data-id='$idx' style='margin-left:8px;' class='secondary'><i class='far fa-plus-square'></i>Pridať poznámku</button><button data-editnote='$idx' data-id='$idx' style='margin-left:8px;' class='secondary'><i class='far fa-edit'></i>Upraviť</button><button data-delnote='$idx' data-id='$idx' style='margin-left:8px;' class='secondary'><i class='far fa-trash-alt'></i>Zmazať</button></div></td></tr>";
+                echo "<tr><td>$symbol</td><td>$type</td><td>$category</td><td class='editable-cell' contenteditable='true' data-id='$idx'>$qty</td><td contenteditable='true' class='editable-cell'data-id='$idx'>$price</td><td>$fee</td><td>$ccy</td><td>$created_at</td><td><span class='note-count' data-id='$idx' title='Poznámky'>".GetCountNotes($idx)."</span></td><td><div style='display:flex; justify-content:flex-end'><button data-note='$idx' data-id='$idx' style='margin-left:8px;' class='secondary'><i class='far fa-plus-square'></i>Pridať poznámku</button><button data-delnote='$idx' data-id='$idx' style='margin-left:8px;' class='secondary'><i class='far fa-trash-alt'></i>Zmazať</button></div></td></tr>";
             }
         ?>
      

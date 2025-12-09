@@ -1,5 +1,6 @@
-body { font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif; margin: 24px; ;background-color: #253649; color:white}
-    header { display:flex; align-items:baseline; gap:12px; }
+   body { font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif; margin: 24px; ;background-color: #253649; color:white}
+   ::placeholder { color:#91d1fe; }
+   header { display:flex; align-items:center; gap:12px; background-color: #435B7C; margin-bottom:20px; border:1px solid #eee;}
     h1 { margin: 0; font-size: 20px; color: #eefbfe; }
     .row { display:flex; gap: 16px; align-items:flex-end; flex-wrap: wrap; }
     label { display:flex; flex-direction:column; font-size: 12px; gap:4px; }
@@ -11,8 +12,8 @@ body { font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif; marg
     th { font-size:12px; text-transform:uppercase; letter-spacing:.04em; color:#eefbfe; }
     tbody tr:hover {  background: rgba(31, 91, 143, 0.9); }
     .grid { display:grid; grid-template-columns: repeat(auto-fit, minmax(220px,1fr)); gap:12px; margin: 16px 0; }
-    .card { border:1px solid #eee; border-radius:12px; padding:14px; margin-top: 15px;background-color: #435B7C; }
-    .muted { color:#666; font-size:12px; }
+    .card { border:1px solid #eee; border-radius:6px; padding:14px; margin-top: 15px;background-color: #435B7C; }
+    .muted { color:white; font-size:14px; }
     .right { text-align:right; }
     .note-count { display:flex; min-width:40px; height:40px; line-height:40px; text-align:center; border-radius:10px; background:#f0f4c3; background-color:#295780; color: #eefbfe; font-size:20px; margin-right:8px; padding:0 6px; border:1px solid #e0e0a0; font-weight: bold; cursor: pointer; align-items: center; justify-content: center; width:70px }
     /* editable cells for inline qty/price editing */
@@ -21,7 +22,7 @@ body { font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif; marg
     /* .editable-cell:hover { background-color: #233342} */
     .editable-cell:focus { outline:2px solid #253649; background-color: #233342; }
     .transactionsFilter {display: flex;gap: 10px;}
-    #txForm select, #txForm input {font-size: 16px; font-weight: bold;}
+    #txForm select, #txForm input {font-size: 16px; font-weight: bold; background: #253649;color: white;}
     #txForm button {height:37px; font-size: 16px; font-weight: bold; display: flex; align-items: center; gap:10px}
 
     .overlay {
