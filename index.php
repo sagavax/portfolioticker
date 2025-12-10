@@ -18,21 +18,25 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Portforlio Tracker</title>
      <link rel="stylesheet" href="css/style.css?<?php echo time() ?>" />
-     <link rel="stylesheet" href="css/message.css?<?php echo time() ?>" />
+     <!-- <link rel="stylesheet" href="css/message.css?<?php echo time() ?>" /> -->
      <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
      <link rel="icon" type="image/png" sizes="32x32" href="investment.png">
-     <script type="module" src="js/main.js?<?php echo time() ?>"></script>
-     <script defer src="js/loin.js?<?php echo time() ?>"></script>
+     <script type="module" src="js/main.js?<?php echo time() ?> defer"></script>
+     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+     <!-- <script src="js/worldclock.js?<?php echo time() ?>"></script> -->
+    
 </head>
 <body>
     <header>
-      <a href="."><img src="portfolio-ticker-logo.svg" alt="Portfolio Ticker"></a>
+      <a href="."><img src="portfolio-ticker-logo.svg" alt="Portfolio Ticker"></a><div class="clockWrapper"><div id="clock">--:--:--</div></div>
     </header>
+
+
 
   <section class="grid">
     <div class="card">
       <div class="muted">Hodnota portfólia</div>
-      <div id="portfolioValue" style="font-size:24px;font-weight:700"><?php echo GetPortfolioValue(); ?></div>
+      <div id="portfolioValue" style="font-size:24px;font-weight:700"><?php echo  GetPortfolioValue(); ?></div>
       <div id="portfolioPnL" class="muted">P/L: —</div>
     </div>
     <div class="card">
@@ -41,6 +45,155 @@
       <div id="cashInfo" class="muted">Hotovosť: —</div>
     </div>
   </section>
+
+  <setion class="grid">
+    <div class="card">
+      <h1>Kategoria assetu</h1>
+      <canvas id="myChart"></canvas>
+       <script>
+          const ctx = document.getElementById('myChart');
+
+          new Chart(ctx, {
+            type: 'bar',
+            data: {
+              labels: ['STOCK', 'CRYPTO', 'ETF', 'BOND', 'FUNDS'],
+              datasets: [{
+                label: '# of Votes',
+                data: [12, 19, 3, 5, 2],
+                borderWidth: 1
+              }]
+            },
+            options: {
+              scales: {
+                y: {
+                  beginAtZero: true
+                }
+              }
+            }
+          });
+      </script>
+    </div>
+    
+    <div class="card">
+      <h1>Asset:</h1>
+      <canvas id="myChart2"></canvas>
+      <script>
+    // Asynchrónna funkcia, ktorá načíta dáta z PHP a vykreslí graf
+          async function loadAndRenderChart() {
+              try {
+                  // Zavolá PHP skript, ktorý sme vytvorili vyššie
+                  const response = await fetch('get_asset.php');
+                  
+                  if (!response.ok) {
+                      throw new Error('Problém pri načítaní dát zo servera: ' + response.statusText);
+                  }
+
+                  // Premení odpoveď servera (JSON text) na JavaScript objekt
+                  const apiData = await response.json();
+
+                  const ctx2 = document.getElementById('myChart2');
+
+                  // Vytvorí novú inštanciu grafu Chart.js
+                  new Chart(ctx2, {
+                      type: 'bar',
+                      data: {
+                          // POUŽIJEME DÁTA Z PHP ODPOVEDE
+                          labels: apiData.labels, 
+                          datasets: [{
+                              label: 'Počet transakcií',
+                              // POUŽIJEME DÁTA Z PHP ODPOVEDE
+                              data: apiData.data, 
+                              borderWidth: 1,
+                              backgroundColor: [
+                                  'rgba(255, 99, 132, 0.6)',
+                                  'rgba(54, 162, 235, 0.6)',
+                                  'rgba(255, 206, 86, 0.6)',
+                                  'rgba(75, 192, 192, 0.6)',
+                                  'rgba(153, 102, 255, 0.6)',
+                                  'rgba(255, 159, 64, 0.6)'
+                              ],
+                              borderColor: [
+                                  'rgba(255, 99, 132, 1)',
+                                  'rgba(54, 162, 235, 1)',
+                                  'rgba(255, 206, 86, 1)',
+                                  'rgba(75, 192, 192, 1)',
+                                  'rgba(153, 102, 255, 1)',
+                                  'rgba(255, 159, 64, 1)'
+                              ]
+                          }]
+                      },
+                      options: {
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                color: '#FFFFFF' // Farba textu na Y osi (čísla)
+                            },
+                            grid: {
+                                display: false // Skryje mriežku na Y osi
+                            }
+                        },
+                        x: {
+                            ticks: {
+                                color: '#FFFFFF' // Farba textu na X osi (názvy assetov)
+                            },
+                            grid: {
+                                display: false // Skryje mriežku na X osi
+                            }
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            labels: {
+                                color: '#FFFFFF' // Farba textu v legende
+                            }
+                        }
+                    }
+                  } 
+                  });
+
+              } catch (error) {
+                  console.error('Chyba pri vykresľovaní grafu:', error);
+                  // Zobrazí chybovú správu používateľovi, ak sa dáta nenačítajú
+                  document.getElementById('myChart2').innerText = 'Nepodarilo sa načítať dáta grafu.';
+              }
+          }
+
+          // !! DÔLEŽITÉ: Túto funkciu musíme ZAVOLAŤ, aby sa kód spustil
+          loadAndRenderChart();
+      </script>
+    </div>   
+
+    <div class="card">
+      <h1>Mena:</h1>
+      <canvas id="myChart3"></canvas>
+       <script>
+          const ctx3 = document.getElementById('myChart3');
+
+          new Chart(ctx3, {
+            type: 'bar',
+            data: {
+              labels: ['USD', 'EUR', 'GBP', 'CZK', 'JPY', 'CHF'],
+              datasets: [{
+                label: '# of Votes',
+                data: [12, 19, 3, 5, 2, 3],
+                borderWidth: 1
+              }]
+            },
+            options: {
+              scales: {
+                y: {
+                  beginAtZero: true
+                }
+              }
+            }
+          });
+      </script>
+    </div>   
+
+  </setion>
+          
+
 
   <section class="card">
     <h2 style="margin-top:0">Nová transakcia</h2>
@@ -84,7 +237,7 @@
           <option value="CRYPTO">Crypto</option>
         </select>
       </label>
-      <label>Ticker <input name="symbol" placeholder="AAPL, MSFT..." /></label>
+      <label>Ticker <input name="symbol" placeholder="AAPL, MSFT..." autocomplete="off"/></label>
       <label>Množstvo <input type="number" step="0.000001" name="qty" value="0"></label>
       <label>Cena / ks <input type="number" step="0.000001" name="price" value="0"></label>
       <!-- <label>Poplatok <input type="number" step="0.000001" name="fee" value="0"></label> -->
@@ -97,31 +250,24 @@
     </form>
   </section>
 
-<!--  <section class="card">
-    <div class="row" style="justify-content:space-between">
-      <h2 style="margin:0">Pozície</h2>
-      <div class="row">
-        <button id="exportBtn" class="secondary">Export CSV</button>
-        <label class="secondary">Import CSV <input type="file" id="importFile" accept=".csv" /></label>
-      </div>
-    </div>
-    <table id="positionsTable">
-      <thead>
-        <tr>
-          <th>Ticker</th><th>Množstvo</th><th>Priem. cena</th><th>Aktuálna cena*</th>
-          <th>Hodnota</th><th>P/L</th><th class="right">Akcie</th>
-        </tr>
-      </thead>
-      <tbody></tbody>
-    </table>
-    <div class="muted">* Aktuálne ceny sú demo (manuálne/uložené). Neskôr pripni API.</div>
-  </section> -->
-
   <section class="card">
     <h2 style="margin-top:0">Filter</h2>
-    <div class= "transactionsFilter">
-      <button name="StocksFilter" class="secondary">Akcie</button><button name="FundsFilter" class="secondary">Fondy</button></button><button name="BondsFilter" class="secondary">Dlhopisy</button><button name="cryptoFilter" class="secondary">Crypto</button><button name="AllFilter" class="secondary">Všetko</button>
-    </div>
+    <div class="transactionsFilter_wrap">
+      <div class= "transactionsFilter">
+        <button name="StocksFilter" class="secondary">Akcie</button><button name="FundsFilter" class="secondary">Fondy</button></button><button name="BondsFilter" class="secondary">Dlhopisy</button><button name="cryptoFilter" class="secondary">Crypto</button><button name="AllFilter" class="secondary">Všetko</button>
+      </div>
+      <div class= "transactionsFilter">
+        <?php 
+
+            $get_tickers = "SELECT DISTINCT symbol FROM transactions";
+            $result = mysqli_query($link, $get_tickers) or die("MySQL ERROR: " . mysqli_error($link));
+            while ($row = mysqli_fetch_array($result)) {
+              $symbol = $row['symbol'];
+              echo '<button name="symbolFilter" class="secondary">'.$symbol.'</button>';
+            }
+        ?>
+      </div>
+    </div><!-- transactionsFilter_wrap -->        
   </section> 
 
   <section class="card">
@@ -181,3 +327,19 @@
   </div>
 </div>
 </html>
+
+<div id="assetListModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);align-items:center;justify-content:center;z-index:9999;">
+  <div style="background-color: #253649;padding:16px;border-radius:6px;max-width:70%;width:95%;max-height:80vh;overflow:auto;box-shadow:0 10px 30px rgba(0,0,0,0.2);">
+    <h3 style="margin-top:0">Zoznam assetu</h3>
+    <div id="charList" style="display:flex;flex-wrap:wrap;margin-bottom:12px;font-size:14px;line-height:1.4; gap:10px">
+      <?php echo assetCharList() ?>
+    </div>
+    <div id="assetListContent" style="margin-bottom:12px;font-size:14px;line-height:1.4; gap:10px; display:flex;flex-wrap:wrap">
+      <?php echo assetSymbolList() ?>
+    </div>
+    <div style="text-align:right">
+      <button id="assetListClose" class="secondary">Zatvoriť</button>
+    </div>
+  </div>
+</div>
+ 

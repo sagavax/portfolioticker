@@ -21,9 +21,16 @@
     /* .editable-cell:focus { outline:2px solid #ffd54f; background:#fff; } */
     /* .editable-cell:hover { background-color: #233342} */
     .editable-cell:focus { outline:2px solid #253649; background-color: #233342; }
-    .transactionsFilter {display: flex;gap: 10px;}
+    .transactionsFilter_wrap {display: flex; gap: 10px;height: 100%; width: 100%}
+    .transactionsFilter {display: flex;gap: 10px; height:100%; width: 100%;}
     #txForm select, #txForm input {font-size: 16px; font-weight: bold; background: #253649;color: white;}
     #txForm button {height:37px; font-size: 16px; font-weight: bold; display: flex; align-items: center; gap:10px}
+
+    #clock {font-family: 'Segoe UI', sans-serif; font-size: 28px; font-weight: bold; color: #eefbfe; margin-right: 10px; }
+    .clockWrapper { display:flex; width:100%; align-items: center; justify-content: flex-end; }
+
+    #myChart2 label {color: white}
+
 
     .overlay {
      display: flex;   

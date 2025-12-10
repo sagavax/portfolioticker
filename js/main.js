@@ -13,6 +13,12 @@ const notesListClose = document.getElementById("notesListClose"); // Notes list 
 const noteSaveBtn = document.querySelector('#noteSave');
 const noteCancelBtn = document.querySelector('#noteCancel');
 const transactionsFilter = document.querySelector(".transactionsFilter"); // Transactions filter container
+const assetListModal = document.getElementById("assetListModal");
+
+
+setInterval(updateClock, 1000);
+
+updateClock();
 
 // Utility function for fetch with timeout
 function fetchWithTimeout(url, options = {}, timeout = 10000) {
@@ -46,6 +52,15 @@ txForm.addEventListener('submit', function(e) {
         saveTransaction(date.value, provider.value, ticker.value, type.value,category.value, quantity.value, price.value, ccy.value);
     } 
 });
+
+txForm.addEventListener('click', function(e) {
+    if(e.target && e.target.tagName ==="INPUT") {
+        const assetListModal = document.getElementById("assetListModal");
+        assetListModal.style.display = 'flex';
+        /* const transactionId = e.target.getAttribute("data-del");
+        deleteTransaction(transactionId); */
+    }
+})
 
 transactionsTable.addEventListener('click', function(e) {
     if (e.target && e.target.matches("button[data-del]")) {
@@ -234,45 +249,6 @@ function escapeHtml(s = "") {
     .replaceAll("'", "&#39;");
 }
 
-function renderTransactionsTable(rows = []) {
-  if (!Array.isArray(rows) || rows.length === 0) {
-    return '<div class="empty">Žiadne transakcie</div>';
-  }
-  
-  const head = `
-    <thead>
-      <tr>
-        <th>Dátum</th><th>Broker</th><th>Ticker</th><th>Typ</th>
-        <th>Kategória</th><th>Množstvo</th><th>Cena</th><th>Mena</th><th>Akcie</th>
-      </tr>
-    </thead>`;
-  
-  const body = rows.map(r => {
-    // Formátovanie čísel - odstráni nadbytočné nuly
-    const qty = r.qty ? parseFloat(r.qty) : 0;
-    const price = r.price ? parseFloat(r.price).toFixed(2) : '0.00';
-    
-    return `
-    <tr>
-      <td>${escapeHtml(r.date)}</td>
-      <td>${escapeHtml(r.provider)}</td>
-      <td><strong>${escapeHtml(r.symbol || '-')}</strong></td>
-      <td>${escapeHtml(r.type)}</td>
-      <td>${escapeHtml(r.category)}</td>
-      <td data-id="${r.id}" data-field="qty" contenteditable="true" class="text-right">${qty}</td>
-      <td data-id="${r.id}" data-field="price" contenteditable="true" class="text-right">${price}</td>
-      <td>${escapeHtml(r.ccy)}</td>
-      <td class="right">
-        <span class="note-count" data-id="${r.id}" title="Poznámky">0</span>
-        <button class="secondary" data-note="${r.id}">Poznamka +</button>
-        <button class="secondary" data-del="${r.id}">Zmaž</button>
-      </td>
-    </tr>`
-  }).join("");
-  
-  return `<table class="table table-striped">${head}<tbody>${body}</tbody></table>`;
-}
-
 
 async function removeFromPortfolio(transactionId) {
     try {
@@ -366,6 +342,11 @@ function showNoteModal(transactionId) {
 }
 
 
+function showAssetModal(){
+    const assetModal = document.getElementById("assetListModal");
+    assetModal.style.display = 'flex';
+}
+
 async function deleteTransaction(transactionId) {
     if (confirm('Are you sure you want to delete this transaction?')) {
         await removeFromPortfolio(transactionId);
@@ -434,4 +415,54 @@ async function countPortfolio() {
     } catch (error) {
         console.error('Error counting portfolio:', error);
     }
+}
+
+function updateClock() {
+    // 1. Get the current time
+    const now = new Date();
+    let hours = now.getHours();
+    let minutes = now.getMinutes();
+    let seconds = now.getSeconds();
+
+    // 2. Determine if it's AM or PM
+    const period = hours >= 12 ? 'PM' : 'AM';
+
+    // 3. Convert from 24-hour to 12-hour format
+    // If hours is 0 (midnight), it should be 12
+    if (hours === 0) {
+        hours = 12;
+    }
+    // If hours is greater than 12, subtract 12
+    if (hours > 12) {
+        hours = hours - 12;
+    }
+
+    // 4. Add a leading zero to single-digit minutes and seconds
+    minutes = minutes < 10 ? '0' + minutes : minutes;
+    seconds = seconds < 10 ? '0' + seconds : seconds;
+    
+    // 5. Construct the final time string
+    const timeString = `${hours}:${minutes}:${seconds}`;
+
+    // 6. Update the HTML elements with the new time
+    document.getElementById('clock').textContent = timeString;
+    //document.getElementById('clock-period').textContent = period;
+}
+
+// Run the function every second (1000 milliseconds)
+//
+
+// Run the function once immediately on page load
+//;
+
+async function GetAllTransactionaAssets(){
+    const xhttp = new XMLHttpRequest();
+    xhttp.onreadystatechange = function() {
+        if (this.readyState === 4 && this.status === 200) {
+            json = JSON.parse(this.responseText);
+            console.log(json);
+        }
+    }
+    xhttp.open("GET", "get_assets.php", true);
+    xhttp.send();     
 }

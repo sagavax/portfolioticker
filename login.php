@@ -9,8 +9,8 @@ header("Cache-Control: max-age=0");
 
 
 if(isset($_POST['login'])){
-        $username=mysqli_real_escape_string($link, $_POST['username']);
-        $password=mysqli_real_escape_string($link, $_POST['password']);
+      $username=mysqli_real_escape_string($link, $_POST['username']);
+      $password=mysqli_real_escape_string($link, $_POST['password']);
        
             
       $get_login="select * from users where login = '$username' and password = '$password'";
@@ -29,7 +29,7 @@ if(isset($_POST['login'])){
           }, 3000)</script>";
 
           //header("location:dashboard.php");
-          } elseif ($overeni==0) {
+       } elseif ($overeni==0) {
             echo "<div class='overlay'><div class='logon_information error'><i class='fas fa-times-circle'></i></div></div>";
             echo "<script>setTimeout(function(){
               window.location = 'login.php';
@@ -41,14 +41,15 @@ if(isset($_POST['login'])){
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Portforlio Tracker</title>
-    <link rel="stylesheet" type="text/css" href="css/login.css?<?php echo time(); ?>">
-    <link rel="stylesheet" type="text/css" href="css/style.css?<?php echo time(); ?>">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Portforlio Tracker</title>
+  <link rel="stylesheet" type="text/css" href="css/login.css?<?php echo time(); ?>">
+  <link rel="stylesheet" type="text/css" href="css/style.css?<?php echo time(); ?>">
 	<link href='https://fonts.googleapis.com/css?family=Noto+Sans:400,700,400italic,700italic' rel='stylesheet' type='text/css'>
 	<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css" rel="stylesheet">
-	<link rel="icon" type="image/png" href="keep.jpg">
+  <script defer src="js/loin.js?<?php echo time() ?>"></script>
+	<link rel="icon" type="image/png" sizes="32x32" href="investment.png">
 </head>
 <body>
   <main>
