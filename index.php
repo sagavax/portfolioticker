@@ -36,12 +36,12 @@
   <section class="grid">
     <div class="card">
       <div class="muted">Hodnota portfólia</div>
-      <div id="portfolioValue" style="font-size:24px;font-weight:700"><?php echo  GetPortfolioValue(); ?></div>
+      <div id="portfolioValue" class="stat-value"><?php echo  GetPortfolioValue(); ?></div>
       <div id="portfolioPnL" class="muted">P/L: —</div>
     </div>
     <div class="card">
       <div class="muted">Počet pozícií</div>
-      <div id="positionsCount" style="font-size:24px;font-weight:700"><?php echo GetCountPosiotions(); ?></div>
+      <div id="positionsCount" class="stat-value"><?php echo GetCountPosiotions(); ?></div>
       <div id="cashInfo" class="muted">Hotovosť: —</div>
     </div>
   </section>
@@ -196,7 +196,7 @@
 
 
   <section class="card">
-    <h2 style="margin-top:0">Nová transakcia</h2>
+    <h2 class="section-heading">Nová transakcia</h2>
     <form id="txForm" class="row">
       <label>Dátum<input type="date" name="date" required></label>
       <label>Provider
@@ -251,7 +251,7 @@
   </section>
 
   <section class="card">
-    <h2 style="margin-top:0">Filter</h2>
+    <h2 class="section-heading">Filter</h2>
     <div class="transactionsFilter_wrap">
       <div class= "transactionsFilter">
         <button name="StocksFilter" class="secondary">Akcie</button><button name="FundsFilter" class="secondary">Fondy</button></button><button name="BondsFilter" class="secondary">Dlhopisy</button><button name="cryptoFilter" class="secondary">Crypto</button><button name="AllFilter" class="secondary">Všetko</button>
@@ -271,7 +271,7 @@
   </section> 
 
   <section class="card">
-    <h2 style="margin-top:0">Transakcie</h2>
+    <h2 class="section-heading">Transakcie</h2>
     <table id="transactionsTable">
       <thead>
         <tr>
@@ -293,7 +293,7 @@
                 $fee = $row['fee'];
                 $ccy = $row['ccy'];
                 $created_at = $row['created_at'];
-                echo "<tr><td>$symbol</td><td>$type</td><td>$category</td><td class='editable-cell' contenteditable='true' data-id='$idx'>$qty</td><td contenteditable='true' class='editable-cell'data-id='$idx'>$price</td><td>$fee</td><td>$ccy</td><td>$created_at</td><td><span class='note-count' data-id='$idx' title='Poznámky'>".GetCountNotes($idx)."</span></td><td><div style='display:flex; justify-content:flex-end'><button data-note='$idx' data-id='$idx' style='margin-left:8px;' class='secondary'><i class='far fa-plus-square'></i>Pridať poznámku</button><button data-delnote='$idx' data-id='$idx' style='margin-left:8px;' class='secondary'><i class='far fa-trash-alt'></i>Zmazať</button></div></td></tr>";
+                echo "<tr><td>$symbol</td><td>$type</td><td>$category</td><td class='editable-cell' contenteditable='true' data-id='$idx'>$qty</td><td contenteditable='true' class='editable-cell'data-id='$idx'>$price</td><td>$fee</td><td>$ccy</td><td>$created_at</td><td><span class='note-count' data-id='$idx' title='Poznámky'>".GetCountNotes($idx)."</span></td><td><div class='actions-container'><button data-note='$idx' data-id='$idx' class='secondary'><i class='far fa-plus-square'></i>Pridať poznámku</button><button data-delnote='$idx' data-id='$idx' class='secondary'><i class='far fa-trash-alt'></i>Zmazať</button></div></td></tr>";
             }
         ?>
      
@@ -304,40 +304,41 @@
 </html>
 
 <!-- Note modal -->
-<div id="noteModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);align-items:center;justify-content:center;z-index:9999;">
-  <div style="background-color: #435B7C;border-radius:6px;max-width:600px;width:90%;box-shadow:0 10px 30px rgba(0,0,0,0.2);box-sizing: border-box; padding:10px;">
-    <h3 style="margin-top:0">Pridať poznámku</h3>
+<div id="noteModal" class="modal-overlay">
+  <div class="modal-container">
+    <h3>Pridať poznámku</h3>
   <!-- <div id="noteExistingList" style="max-height:160px;overflow:auto;margin-bottom:8px;border:1px solid #f0f0f0;padding:8px;border-radius:6px;background:#fafafa;font-size:13px;color:#222"></div> -->
-  <textarea id="noteText" placeholder="Napíš novú poznámku sem..." style="background:#253649;width:100%;height:160px;margin-bottom:8px;padding:8px;font-size:14px;box-sizing:border-box"></textarea>
-    <div style="text-align:right;display:flex; justify-content:flex-end">
-      <button id="noteCancel" class="secondary" style="margin-right:8px">Zrušiť</button>
+  <textarea id="noteText" placeholder="Napíš novú poznámku sem..." class="modal-textarea"></textarea>
+    <div class="modal-actions">
+      <button id="noteCancel" class="secondary">Zrušiť</button>
       <button id="noteSave">Uložiť</button>
     </div>
   </div>
 </div>
 
 <!-- Notes list modal -->
-<div id="notesListModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);align-items:center;justify-content:center;z-index:9999;">
-  <div style="background-color: #253649;padding:16px;border-radius:6px;max-width:800px;width:95%;max-height:80vh;overflow:auto;box-shadow:0 10px 30px rgba(0,0,0,0.2);">
-    <h3 style="margin-top:0">Zoznam poznámok</h3>
-    <div id="notesListContent" style="margin-bottom:12px;font-size:14px;line-height:1.4;"></div>
-    <div style="text-align:right">
+<div id="notesListModal" class="modal-overlay">
+  <div class="modal-container-large">
+    <h3>Zoznam poznámok</h3>
+    <div id="notesListContent" class="modal-content"></div>
+    <div class="modal-actions">
       <button id="notesListClose" class="secondary">Zatvoriť</button>
     </div>
   </div>
 </div>
 </html>
 
-<div id="assetListModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);align-items:center;justify-content:center;z-index:9999;">
-  <div style="background-color: #253649;padding:16px;border-radius:6px;max-width:70%;width:95%;max-height:80vh;overflow:auto;box-shadow:0 10px 30px rgba(0,0,0,0.2);">
-    <h3 style="margin-top:0">Zoznam assetu</h3>
-    <div id="charList" style="display:flex;flex-wrap:wrap;margin-bottom:12px;font-size:14px;line-height:1.4; gap:10px">
+<div id="assetListModal" class="modal-overlay">
+  <div class="modal-container-asset">
+    <h3>Zoznam assetu</h3>
+    <div id="charList">
       <?php echo assetCharList() ?>
     </div>
-    <div id="assetListContent" style="margin-bottom:12px;font-size:14px;line-height:1.4; gap:10px; display:flex;flex-wrap:wrap">
+    <input id="assetListSearch" placeholder="Hledať...">
+    <div id="assetListContent">
       <?php echo assetSymbolList() ?>
     </div>
-    <div style="text-align:right">
+    <div class="modal-actions">
       <button id="assetListClose" class="secondary">Zatvoriť</button>
     </div>
   </div>

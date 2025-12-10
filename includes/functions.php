@@ -70,7 +70,7 @@
     function assetSymbolList(){
         //symbol list
         global $link;
-        $get_tickers = "SELECT DISTINCT ticker FROM tickers WHERE LEFT(ticker, 1) = 'A' ORDER BY ticker ASC";
+        $get_tickers = "SELECT DISTINCT ticker FROM tickers WHERE LEFT(ticker, 1) = 'A' ORDER BY ticker ASC LIMIT 100";
         $result = mysqli_query($link, $get_tickers) or die("MySQL ERROR: " . mysqli_error($link));
         while ($row = mysqli_fetch_array($result)) {
             $symbol = $row['ticker'];
