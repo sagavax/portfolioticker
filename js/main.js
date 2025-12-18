@@ -14,21 +14,39 @@ const noteSaveBtn = document.querySelector('#noteSave');
 const noteCancelBtn = document.querySelector('#noteCancel');
 const transactionsFilter = document.querySelector(".transactionsFilter"); // Transactions filter container
 const assetListModal = document.getElementById("assetListModal");
+const ssetListSearch = document.getElementById("assetListSearch");
+const assetListClose = document.getElementById("assetListClose");
+const modalModifyPosition = document.getElementById("modalModifyPosition");
+const modalStopLossTakeProfit = document.getElementById("modalStopLossTakeProfit");
 
 
 setInterval(updateClock, 1000);
 
 updateClock();
 
+
+assetListClose.addEventListener('click', function(e) {
+    assetListModal.style.display = 'none';
+});
+
+assetListModal.addEventListener('click', function(e) {
+    if(e.target && e.target.tagName ==="BUTTON") {
+        if(e.target.name ==="symbol") {
+            txForm.querySelector('input[name="symbol"]').value = e.target.textContent;
+            assetListSearch.value="";
+            assetListModal.style.display = 'none';
+            e.target.remove();
+        }
+    } 
+});
+
+assetListModal.addEventListener('input', function(e) {
+    if(e.target && e.target.tagName ==="INPUT") {
+        searchAsset(e.target.value);
+    } 
+});
+
 // Utility function for fetch with timeout
-function fetchWithTimeout(url, options = {}, timeout = 10000) {
-    return Promise.race([
-        fetch(url, options),
-        new Promise((_, reject) => 
-            setTimeout(() => reject(new Error('Request timeout')), timeout)
-        )
-    ]);
-}
 
 //
 //document.addEventListener("DOMContentLoaded", loadPortfolio);
@@ -76,6 +94,18 @@ transactionsTable.addEventListener('click', function(e) {
     if (e.target && e.target.matches("span.note-count")) {
         const transactionId = e.target.getAttribute("data-id");
         notesListModal(transactionId); // TOTO
+    } 
+
+    if(e.target && e.target.matches("button[data-modify]")) {
+        const transactionId = e.target.getAttribute("data-modify");
+        modifyPosition(transactionId);
+    }
+
+    if(e.target.classList.contains("stop-loss") || e.target.classList.contains("take-profit")) {
+        const transactionId = e.target.getAttribute("data-id");
+        console.log(e.target);
+           modifyTakeProfitStopLoss(transactionId);
+           document.getElementById("modalStopLossTakeProfit").style.display = 'flex';
     }
 });
 
@@ -465,4 +495,34 @@ async function GetAllTransactionaAssets(){
     }
     xhttp.open("GET", "get_assets.php", true);
     xhttp.send();     
+}
+
+function fetchWithTimeout(url, options = {}, timeout = 10000) {
+    return Promise.race([
+        fetch(url, options),
+        new Promise((_, reject) => 
+            setTimeout(() => reject(new Error('Request timeout')), timeout)
+        )
+    ]);
+}
+
+
+function searchAsset(asset){
+    const xhttp = new XMLHttpRequest();
+    xhttp.onreadystatechange = function() {
+        if (this.readyState === 4 && this.status === 200) {
+            document.getElementById("assetListContent").innerHTML = this.responseText;
+        }
+    }
+    xhttp.open("GET", "assets_search.php?asset="+asset, true);
+    xhttp.send();
+}
+
+
+function modifyPosition(transactionId) {
+    modalModifyPosition.style.display = 'flex';
+}
+
+function modifyTakeProfitStopLoss(transactionId) {
+    document.getElementById("modalStopLossTakeProfit").style.display = 'flex';
 }

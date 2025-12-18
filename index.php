@@ -1,8 +1,15 @@
 <?php
+  error_reporting(E_ALL);
+  ini_set('display_errors', 1);
+  ini_set('display_startup_errors', 1);
+
+
   include('includes/dbconnect.php');
   include('includes/functions.php');
 
   session_start();
+
+  mysqli_report(MYSQLI_REPORT_ERROR | MYSQLI_REPORT_STRICT);
 
   if(!isset($_SESSION['login'])) {
     header('location:login.php');
@@ -23,12 +30,13 @@
      <link rel="icon" type="image/png" sizes="32x32" href="investment.png">
      <script type="module" src="js/main.js?<?php echo time() ?> defer"></script>
      <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+     <script src="js/clock.js"></script>
      <!-- <script src="js/worldclock.js?<?php echo time() ?>"></script> -->
     
 </head>
 <body>
     <header>
-      <a href="."><img src="portfolio-ticker-logo.svg" alt="Portfolio Ticker"></a><div class="clockWrapper"><div id="clock">--:--:--</div></div>
+      <a href="."><img src="portfolio-ticker-logo.svg" alt="Portfolio Ticker"></a><div class="clockWrapper"><button type ="button" class="secondary" name="worldclock"  id="worldclock">World Clock</button><div id="clock">--:--:--</div></div>
     </header>
 
 
@@ -275,7 +283,7 @@
     <table id="transactionsTable">
       <thead>
         <tr>
-          <th>Ticker</th><th>Typ</th><th>Kategória</th><th>Množstvo</th><th>Cena</th><th>Poplatok</th><th>Mena</th><th>Dátum</th>
+          <th>Ticker</th><th>Typ</th><th>Kategória</th><th>Množstvo</th><th>Cena</th><th>Poplatok</th><th>TP</th><th>SL</th><th>Mena</th><th>Dátum</th>
         <th>Poznámky</th><th><div class="right">Akcie</div></th></tr>
       </thead>
       <tbody>
@@ -292,8 +300,20 @@
                 $price = $row['price'];
                 $fee = $row['fee'];
                 $ccy = $row['ccy'];
+               
+                
+
+                if($p =="" || $sl=="") {
+                  $tp = "-----";
+                  $sl = "-----";
+                } else {
+                  $tp = $row['tp'];
+                  $sl = $row['sl'];
+                }
+               
+                
                 $created_at = $row['created_at'];
-                echo "<tr><td>$symbol</td><td>$type</td><td>$category</td><td class='editable-cell' contenteditable='true' data-id='$idx'>$qty</td><td contenteditable='true' class='editable-cell'data-id='$idx'>$price</td><td>$fee</td><td>$ccy</td><td>$created_at</td><td><span class='note-count' data-id='$idx' title='Poznámky'>".GetCountNotes($idx)."</span></td><td><div class='actions-container'><button data-note='$idx' data-id='$idx' class='secondary'><i class='far fa-plus-square'></i>Pridať poznámku</button><button data-delnote='$idx' data-id='$idx' class='secondary'><i class='far fa-trash-alt'></i>Zmazať</button></div></td></tr>";
+                echo "<tr><td>$symbol</td><td>$type</td><td>$category</td><td class='editable-cell' contenteditable='true' data-id='$idx'>$qty</td><td contenteditable='true' class='editable-cell'data-id='$idx'>$price</td><td>$fee</td><td><div class='take-profit'>$tp</div></td><td><div class='stop-loss'>$sl</div></td><td>$ccy</td><td>$created_at</td><td><span class='note-count' data-id='$idx' title='Poznámky'>".GetCountNotes($idx)."</span></td><td><div class='actions-container'><button data-note='$idx' data-id='$idx' class='secondary'><i class='far fa-plus-square'></i>Pridať poznámku</button><button data-modify='$idx' data-id='$idx' class='secondary'><i class='far fa-edit'></i>Upraviť</button><button data-delnote='$idx' data-id='$idx' class='secondary'><i class='far fa-trash-alt'></i>Zmazať</button></div></td></tr>";
             }
         ?>
      
@@ -338,9 +358,51 @@
     <div id="assetListContent">
       <?php echo assetSymbolList() ?>
     </div>
+    <div id="assetListContentPagination">
+      <?php echo assetSymbolListPagination() ?>
+    </div>
     <div class="modal-actions">
       <button id="assetListClose" class="secondary">Zatvoriť</button>
     </div>
   </div>
 </div>
  
+
+<div id="modalModifyPosition" class="modal-overlay">
+  <div class="modal-container">
+    <h3>Uprava položky</h3>
+    <div id="modalModifyPosiotionContent">
+        <input type="number" id="modalModifyPosiotionQty" placeholder="Množstvo" autocomplete="off">
+        <input type="number" id="modalModifyPosiotionPrice" placeholder="Cena" autocomplete="off">
+        <button id="modalModifyPosiotionSave" type="button" ckass="secondary">Uložiť</button>
+    </div>
+    <div class="modal-actions">
+      <button id="modalModifyPosiotionClose" class="secondary">Zatvoriť</button>
+    </div>
+  </div>
+</div>
+
+
+<div id="modalStopLossTakeProfit" class="modal-overlay">
+  <div class="modal-container">
+   <h3>Uprava Stop loss a Take profit</h3>
+    <div id="modalStopLossTakeProfitContent">
+        <input type="number" id="modalStopLoss" placeholder="Stop loss" autocomplete="off">
+        <input type="number" id="modalTakeProfit" placeholder="Take profit" autocomplete="off">
+        <button id="modalStopLossTakeProfitSave" type="button" ckass="secondary">Uložiť</button>
+    </div>
+    <div class="modal-actions">
+      <button id="modalStopLossTakeProfitClose" class="secondary">Zatvoriť</button>
+    </div>
+  </div>
+</div>
+
+<div id="modalWorldClock" class="modal-overlay">
+  <div class="modal-container">
+   <h3>World Clock</h3>
+    <div id="modalWorldClockContent"></div>
+    <div class="modal-actions">
+      <button id="modalWorldClockClose" class="secondary">Zatvoriť</button>
+    </div>
+  </div>
+</div>

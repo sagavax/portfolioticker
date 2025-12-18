@@ -77,3 +77,8 @@
             echo '<button name="symbol" class="secondary">'.$symbol.'</button>';
         }
     }
+
+
+    function assetSymbolListPagination(){
+        
+    }
