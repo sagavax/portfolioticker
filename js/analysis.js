@@ -1,6 +1,6 @@
 const newAnalysis = document.getElementById("newAnalysis"); //newAnalysis
-const modalNewAnalysiskSave = document.getElementById("modalNewAnalysiskSave");
-const modalNewAnalysiskClose = document.getElementById("modalNewAnalysiskClose");
+const modalNewAnalysisSave = document.getElementById("modalNewAnalysiskSave");
+const modalNewAnalysisClose = document.getElementById("modalNewAnalysiskClose");
 
 
 newAnalysis.addEventListener('click', function(e) {
@@ -8,9 +8,12 @@ newAnalysis.addEventListener('click', function(e) {
 });
 
 
-modalNewAnalysiskSave.addEventListener('click', function(e) {
+modalNewAnalysisSave.addEventListener('click', function(e) {
         saveTheAnalysis();
         document.getElementById("modalNewAnalysis").style.display = 'none';
+        const html ="<div class='analysis'><p><b>" + document.getElementById("ticker").value + "</b></p><p>" + document.getElementById("analysis_text").value + "</p></div><br>";
+        document.getElementById("analysis").innerHTML += html;
+        //reloadAnalysis();
 });
 
 modalNewAnalysiskClose.addEventListener('click', function(e) {
@@ -19,7 +22,11 @@ modalNewAnalysiskClose.addEventListener('click', function(e) {
 
 function saveTheAnalysis() {
     console.log("saveTheAnalysis");
-    if(document.getElementById("ticker").value=="" || document.getElementById("analysis").innerText == '') {
+    if(document.getElementById("ticker").value=="") {
+        alert("Missing ticker");
+        return;
+    } 
+    if(document.getElementById("analysis_text").value =="" ) {
         alert("Cannot be empty");
         return;
     }
@@ -31,4 +38,15 @@ function saveTheAnalysis() {
     xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
     const data = "ticker=" + ticker + "&analysis=" + analysis;
     xhttp.send(data);    
+}
+
+function reloadAnalysis() {
+    const xhttp = new XMLHttpRequest();
+    xhttp.onreadystatechange = function() {
+        if (this.readyState === 4 && this.status === 200) {
+            document.getElementById("portfolio").innerHTML = this.responseText;
+        }
+    };
+    xhttp.open("GET", "analysis_get_list.php", true);
+    xhttp.send();
 }
