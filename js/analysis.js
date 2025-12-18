@@ -1,6 +1,6 @@
 const newAnalysis = document.getElementById("newAnalysis"); //newAnalysis
-const modalNewAnalysisSave = document.getElementById("modalNewAnalysiskSave");
-const modalNewAnalysisClose = document.getElementById("modalNewAnalysiskClose");
+const modalNewAnalysisSave = document.getElementById("modalNewAnalysisSave");
+const modalNewAnalysisClose = document.getElementById("modalNewAnalysisClose");
 
 
 newAnalysis.addEventListener('click', function(e) {
@@ -16,7 +16,7 @@ modalNewAnalysisSave.addEventListener('click', function(e) {
         //reloadAnalysis();
 });
 
-modalNewAnalysiskClose.addEventListener('click', function(e) {
+modalNewAnalysisClose.addEventListener('click', function(e) {
         document.getElementById("modalNewAnalysis").style.display = 'none';
 });
 
