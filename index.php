@@ -30,7 +30,7 @@
      <link rel="icon" type="image/png" sizes="32x32" href="investment.png">
      <script type="module" src="js/main.js?<?php echo time() ?> defer"></script>
      <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-     <script src="js/clock.js"></script>
+     <script src="js/clock.js?<?php echo time() ?>" defer></script>
      <!-- <script src="js/worldclock.js?<?php echo time() ?>"></script> -->
     
 </head>
@@ -302,8 +302,10 @@
                 $ccy = $row['ccy'];
                
                 
+                $tp = $row['tp'];
+                $sl = $row['sl'];
 
-                if($p =="" || $sl=="") {
+                if($tp =="" || $sl=="") {
                   $tp = "-----";
                   $sl = "-----";
                 } else {
