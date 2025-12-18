@@ -355,3 +355,12 @@
     .analysis-item:hover {
       background-color: #5f7eaa;
     }
+
+    .analysis-item h3 {
+      margin: 0;
+    }
+
+    .analysis-list  {
+      display: flex;
+      flex-direction: column;
+    }

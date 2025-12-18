@@ -11,8 +11,8 @@ newAnalysis.addEventListener('click', function(e) {
 modalNewAnalysisSave.addEventListener('click', function(e) {
         saveTheAnalysis();
         document.getElementById("modalNewAnalysis").style.display = 'none';
-        const html ="<div class='analysis'><p><b>" + document.getElementById("ticker").value + "</b></p><p>" + document.getElementById("analysis_text").value + "</p></div><br>";
-        document.getElementById("analysis").innerHTML += html;
+        const html ="<div class='analysis-item'><h3>" + document.getElementById("ticker").value + "</h3><p>" + document.getElementById("analysis_text").value + "</p></div><br>";
+        document.querySelector(".analysis-list").innerHTML += html;
         //reloadAnalysis();
 });
 

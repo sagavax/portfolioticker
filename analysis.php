@@ -33,6 +33,7 @@
 
      <div class="card">
       <h3>Analysis</h3>
+      <div class="analysis-list">
         <?php
           $sql = "SELECT * FROM analyses ORDER BY id DESC";
           $result = $link->query($sql) or die($link->error);
@@ -47,6 +48,7 @@
               echo "0 results";
           }
         ?>
+      </div>
      </div>
 
   <div id="modalNewAnalysis" class="modal-overlay">
