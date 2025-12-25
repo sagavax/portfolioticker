@@ -9,7 +9,7 @@ mysqli_report(MYSQLI_REPORT_ERROR | MYSQLI_REPORT_STRICT);
 $dbhost = "localhost";
 $dbuser = "root";
 $dbpass = "root";
-$dbname = "portfolio_db";
+$dbname = "portfolio_prod";
 
 $link = mysqli_connect($dbhost, $dbuser, $dbpass, $dbname);
 
