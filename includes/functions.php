@@ -82,3 +82,22 @@
     function assetSymbolListPagination(){
         
     }
+
+/**
+ * Retrieves all influencers from the database and echoes out a button for each one.
+ * 
+ * @return void
+ */
+    function GetAllInfluencers(){
+        global $link;
+        $get_influencers = "SELECT * FROM influencers";
+        $result = mysqli_query($link, $get_influencers) or die("MySQLi ERROR: ".mysqli_error($link));
+        while ($row = mysqli_fetch_array($result)) {
+               $influencer_id = $row['influencer_id'];
+               $influencer_name = $row['influencer_name'];
+               $influencer_channel_link = $row['influencer_channel_link'];
+               $influencer_image = $row['influencer_image'];
+               echo '<button name="influencer" class="secondary" id="'.$influencer_id.'">'.$influencer_name.'</button>'; 
+        }       
+
+    }

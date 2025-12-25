@@ -1,1 +1,4 @@
 inspirations/
+*.sql
+includes/dbconnect.php
+includes/dbconnect.php
