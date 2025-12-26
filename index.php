@@ -75,7 +75,16 @@
             options: {
               scales: {
                 y: {
-                  beginAtZero: true
+                  beginAtZero: true,
+                  ticks: {
+                      color: '#FFFFFF' // Farba textu na Y osi (čísla)
+                  }
+                },
+                 x: {
+                  beginAtZero: true,
+                  ticks: {
+                      color: '#FFFFFF' // Farba textu na Y osi (čísla)
+                  }
                 }
               }
             }
@@ -177,26 +186,113 @@
       <h1>Mena:</h1>
       <canvas id="myChart3"></canvas>
        <script>
-          const ctx3 = document.getElementById('myChart3');
+        let chart3Instance = null;
 
-          new Chart(ctx3, {
-            type: 'bar',
-            data: {
-              labels: ['USD', 'EUR', 'GBP', 'CZK', 'JPY', 'CHF'],
-              datasets: [{
-                label: '# of Votes',
-                data: [12, 19, 3, 5, 2, 3],
-                borderWidth: 1
-              }]
-            },
-            options: {
-              scales: {
-                y: {
-                  beginAtZero: true
+        // Pevné farby pre známe meny (HEX)
+        const currencyColorMap = {
+          EUR: '#36A2EB',
+          USD: '#FF6384',
+          GBP: '#4BC0C0',
+          CZK: '#FFCE56',
+          PLN: '#9966FF',
+        };
+
+        // Fallback paleta (HEX)
+        const fallbackPalette = [
+          '#FF9F40',
+          '#C9CBCF',
+          '#63FF84',
+          '#8463FF',
+          '#FF63FF',
+          '#63FFFF',
+          '#FFD86B',
+          '#5AD1B9',
+        ];
+
+        const hashString = (str) => {
+          let hash = 0;
+          for (let i = 0; i < str.length; i += 1) {
+            hash = ((hash << 5) - hash) + str.charCodeAt(i);
+            hash |= 0;
+          }
+          return Math.abs(hash);
+        };
+
+        const getCurrencyColor = (currency) => {
+          const code = String(currency || '').toUpperCase().trim();
+          if (currencyColorMap[code]) return currencyColorMap[code];
+          return fallbackPalette[hashString(code) % fallbackPalette.length];
+        };
+
+        // Ak chceš “priehľadnosť” s HEX: pridaj AA (00..FF)
+        // napr. 70% ≈ B3 => #RRGGBBB3
+        const withAlpha = (hex, alphaHex = 'B3') => `${hex}${alphaHex}`;
+
+        async function loadAndRenderCurrencies() {
+          const canvas = document.getElementById('myChart3');
+          const errorBox = document.getElementById('myChart3Error');
+
+          try {
+            if (!canvas) throw new Error('Canvas element #myChart3 neexistuje.');
+            if (errorBox) errorBox.textContent = '';
+
+            const response = await fetch('get_currencies.php', {
+              headers: { 'Accept': 'application/json' },
+            });
+
+            if (!response.ok) {
+              throw new Error(`Problém pri načítaní dát zo servera: ${response.status} ${response.statusText}`);
+            }
+
+            const apiDataCCy = await response.json();
+            if (!apiDataCCy?.labels || !apiDataCCy?.data) {
+              throw new Error('Neočakávaný formát JSON. Očakávam {labels: [], data: []}.');
+            }
+
+            const baseColors = apiDataCCy.labels.map(getCurrencyColor);
+
+            if (chart3Instance) chart3Instance.destroy();
+
+            chart3Instance = new Chart(canvas, {
+              type: 'bar',
+              data: {
+                labels: apiDataCCy.labels,
+                datasets: [{
+                  label: '# of transactions by currency',
+                  data: apiDataCCy.data,
+                  backgroundColor: baseColors.map(c => withAlpha(c, 'B3')), // ~70% opacity
+                  borderColor: baseColors, // plná farba
+                  borderWidth: 1
+                }]
+              },
+              options: {
+                plugins: {
+                  legend: {
+                    labels: {
+                      color: '#FFFFFF' // <- toto spraví text legendy biely
+                    }
+                  },
+                  tooltip: {
+                    titleColor: '#FFFFFF',
+                    bodyColor: '#FFFFFF'
+                  }
+                },
+                scales: {
+                  y: { beginAtZero: true, ticks: { color: '#FFFFFF' } },
+                  x: { ticks: { color: '#FFFFFF' } }
                 }
               }
-            }
-          });
+            });
+
+          } catch (error) {
+            console.error('Chyba pri vykresľovaní grafu:', error);
+            if (errorBox) errorBox.textContent = 'Nepodarilo sa načítať dáta grafu.';
+          }
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+          loadAndRenderCurrencies();
+        });
       </script>
     </div>   
 
