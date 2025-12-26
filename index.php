@@ -27,6 +27,7 @@
      <link rel="stylesheet" href="css/style.css?<?php echo time() ?>" />
      <!-- <link rel="stylesheet" href="css/message.css?<?php echo time() ?>" /> -->
      <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+     <link href='https://fonts.googleapis.com/css?family=Noto+Sans:400,700,400italic,700italic' rel='stylesheet' type='text/css'>
      <link rel="icon" type="image/png" sizes="32x32" href="investment.png">
      <script type="module" src="js/main.js?<?php echo time() ?> defer"></script>
      <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
