@@ -18,12 +18,20 @@ const ssetListSearch = document.getElementById("assetListSearch");
 const assetListClose = document.getElementById("assetListClose");
 const modalModifyPosition = document.getElementById("modalModifyPosition");
 const modalStopLossTakeProfit = document.getElementById("modalStopLossTakeProfit");
-
+const modalModifyFees = document.getElementById("modalModifyFees");
 
 setInterval(updateClock, 1000);
 
 updateClock();
 
+
+modalModifyFeesClose.addEventListener('click', function(e) {
+    modalModifyFees.style.display = 'none';
+});
+
+modalStopLossTakeProfitClose.addEventListener('click', function(e) {
+    modalStopLossTakeProfit.style.display = 'none';
+})
 
 assetListClose.addEventListener('click', function(e) {
     assetListModal.style.display = 'none';
@@ -105,7 +113,14 @@ transactionsTable.addEventListener('click', function(e) {
         const transactionId = e.target.getAttribute("data-id");
         console.log(e.target);
            modifyTakeProfitStopLoss(transactionId);
-           document.getElementById("modalStopLossTakeProfit").style.display = 'flex';
+           //document.getElementById("modalStopLossTakeProfit").style.display = 'flex';
+    }
+
+    if(e.target.classList.contains("modify-fee")) {
+        const transactionId = e.target.getAttribute("data-id");
+        console.log(e.target);
+           modifyFees(transactionId);
+           //document.getElementById("modalModifyFees").style.display = 'flex';
     }
 });
 
@@ -525,4 +540,8 @@ function modifyPosition(transactionId) {
 
 function modifyTakeProfitStopLoss(transactionId) {
     document.getElementById("modalStopLossTakeProfit").style.display = 'flex';
+}
+
+function modifyFees(transactionId) {
+    document.getElementById("modalModifyFees").style.display = 'flex';
 }

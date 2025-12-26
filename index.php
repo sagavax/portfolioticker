@@ -40,7 +40,13 @@
       <a href="."><img src="portfolio-ticker-logo.svg" alt="Portfolio Ticker"></a><div class="clockWrapper"><button type ="button" class="secondary" name="worldclock"  id="worldclock">World Clock</button><div id="clock">--:--:--</div></div>
     </header>
 
+  <div class="card">
+    <div class="muted">Menové kurzy:</div>
+    <div id="currencyTable" class="stat-value">
+     <script type="module" src="https://widgets.tradingview-widget.com/w/en/tv-ticker-tape.js"></script>
 
+<tv-ticker-tape symbols='FOREXCOM:SPXUSD,FOREXCOM:NSXUSD,FOREXCOM:DJI,FX:EURUSD,BITSTAMP:BTCUSD,BITSTAMP:ETHUSD,CMCMARKETS:GOLD' item-size="compact" theme="dark"></tv-ticker-tape>
+  </div>  
 
   <section class="grid">
     <div class="card">
@@ -453,7 +459,15 @@
                 $category = $row['category'];
                 $qty = $row['qty'];
                 $price = $row['price'];
+                
+              
                 $fee = $row['fee'];
+                if($fee == "") {
+                  $fee = "-----";
+                } else {
+                  $fee = $row['fee'];
+                }
+                
                 $ccy = $row['ccy'];
                
                 
@@ -470,7 +484,7 @@
                
                 
                 $created_at = $row['created_at'];
-                echo "<tr><td>$symbol</td><td>$type</td><td>$category</td><td class='editable-cell' contenteditable='true' data-id='$idx'>$qty</td><td contenteditable='true' class='editable-cell'data-id='$idx'>$price</td><td>$fee</td><td><div class='take-profit'>$tp</div></td><td><div class='stop-loss'>$sl</div></td><td>$ccy</td><td>$created_at</td><td><span class='note-count' data-id='$idx' title='Poznámky'>".GetCountNotes($idx)."</span></td><td><div class='actions-container'><button data-note='$idx' data-id='$idx' class='secondary'><i class='far fa-plus-square'></i>Pridať poznámku</button><button data-modify='$idx' data-id='$idx' class='secondary'><i class='far fa-edit'></i>Upraviť</button><button data-delnote='$idx' data-id='$idx' class='secondary'><i class='far fa-trash-alt'></i>Zmazať</button></div></td></tr>";
+                echo "<tr><td>$symbol</td><td>$type</td><td>$category</td><td class='editable-cell' contenteditable='true' data-id='$idx'>$qty</td><td contenteditable='true' class='editable-cell'data-id='$idx'>$price</td><td><div class='modify-fee'>$fee</div></td><td><div class='take-profit'>$tp</div></td><td><div class='stop-loss'>$sl</div></td><td>$ccy</td><td>$created_at</td><td><span class='note-count' data-id='$idx' title='Poznámky'>".GetCountNotes($idx)."</span></td><td><div class='actions-container'><button data-note='$idx' data-id='$idx' class='secondary'><i class='far fa-plus-square'></i>Pridať poznámku</button><button data-modify='$idx' data-id='$idx' class='secondary'><i class='far fa-edit'></i>Upraviť</button><button data-delnote='$idx' data-id='$idx' class='secondary'><i class='far fa-trash-alt'></i>Zmazať</button></div></td></tr>";
             }
         ?>
      
@@ -547,9 +561,7 @@
         <input type="number" id="modalStopLoss" placeholder="Stop loss" autocomplete="off">
         <input type="number" id="modalTakeProfit" placeholder="Take profit" autocomplete="off">
         <button id="modalStopLossTakeProfitSave" type="button" ckass="secondary">Uložiť</button>
-    </div>
-    <div class="modal-actions">
-      <button id="modalStopLossTakeProfitClose" class="secondary">Zatvoriť</button>
+        <button id="modalStopLossTakeProfitClose" class="secondary">Zatvoriť</button>
     </div>
   </div>
 </div>
@@ -560,6 +572,16 @@
     <div id="modalWorldClockContent"></div>
     <div class="modal-actions">
       <button id="modalWorldClockClose" class="secondary">Zatvoriť</button>
+    </div>
+  </div>
+</div>
+
+<div id="modalModifyFees" class="modal-overlay">
+  <div class="modal-container">
+    <div id="modalModifyFeesContent">
+        <input type="text" id="modify_fee" placeholder="fee..." autocomplete="off">
+        <button id="modalModifyFeeSSave" type="button" ckass="secondary">Uložiť</button>
+        <button id="modalModifyFeesClose" class="secondary">Zatvoriť</button>
     </div>
   </div>
 </div>
