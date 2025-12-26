@@ -60,101 +60,93 @@
       <h1>Kategoria assetu</h1>
       <canvas id="myChart"></canvas>
       <script>
-        let chartAssetCategoryInstance = null;
+        (() => {
+          let chartAssetCategoryInstance = null;
 
-        // Stabilné HEX farby podľa value (trvalé)
-        const assetCategoryColorMap = {
-          STOCKS: '#36A2EB',
-          ETF: '#4BC0C0',
-          FUND: '#9966FF',
-          BOND: '#FFCE56',
-          CRYPTO: '#FF6384',
-        };
+          // Stabilné HEX farby podľa value (trvalé)
+          const assetCategoryColorMap = {
+            STOCKS: '#36A2EB',
+            ETF: '#4BC0C0',
+            FUND: '#9966FF',
+            BOND: '#FFCE56',
+            CRYPTO: '#FF6384',
+          };
 
-        const getAssetCategoryColor = (category) => {
-          const key = String(category || '').toUpperCase().trim();
-          return assetCategoryColorMap[key] ?? '#C9CBCF'; // fallback
-        };
+          const getAssetCategoryColor = (category) => {
+            const key = String(category || '').toUpperCase().trim();
+            return assetCategoryColorMap[key] ?? '#C9CBCF'; // fallback
+          };
 
-        // HEX s alpha kanálom: #RRGGBBAA (B3 ~ 70% opacity)
-        const withAlpha = (hex, alphaHex = 'B3') => `${hex}${alphaHex}`;
+          // lokálna helper funkcia (v tomto scope sa nebude biť s iným scriptom)
+          const addAlpha = (hex, alphaHex = 'B3') => `${hex}${alphaHex}`;
 
-        async function loadAndRenderAssetCategoryChart() {
-          const canvas = document.getElementById('myChart');
-          const errorEl = document.getElementById('myChartError'); // voliteľné
+          async function loadAndRenderAssetCategoryChart() {
+            const canvas = document.getElementById('myChart');
+            const errorEl = document.getElementById('myChartError'); // voliteľné
 
-          try {
-            if (!canvas) {
-              throw new Error('Canvas element #myChart neexistuje.');
-            }
-            if (errorEl) errorEl.textContent = '';
+            try {
+              if (!canvas) throw new Error('Canvas element #myChart neexistuje.');
+              if (errorEl) errorEl.textContent = '';
 
-            const response = await fetch('get_asset_categories.php', {
-              headers: { 'Accept': 'application/json' },
-            });
+              const response = await fetch('get_asset_categories.php', {
+                headers: { Accept: 'application/json' },
+              });
 
-            if (!response.ok) {
-              throw new Error(`Problém pri načítaní dát zo servera: ${response.status} ${response.statusText}`);
-            }
+              if (!response.ok) {
+                throw new Error(`Problém pri načítaní dát zo servera: ${response.status} ${response.statusText}`);
+              }
 
-            const apiData = await response.json();
+              const apiData = await response.json();
 
-            // očakávame: { labels: ['STOCKS','ETF',...], data: [10,20,...] }
-            if (!apiData?.labels || !apiData?.data) {
-              throw new Error('Neočakávaný formát JSON. Očakávam {labels: [], data: []}.');
-            }
+              if (!apiData?.labels || !apiData?.data) {
+                throw new Error('Neočakávaný formát JSON. Očakávam {labels: [], data: []}.');
+              }
 
-            const baseColors = apiData.labels.map(getAssetCategoryColor);
+              const baseColors = apiData.labels.map(getAssetCategoryColor);
 
-            if (chartAssetCategoryInstance) {
-              chartAssetCategoryInstance.destroy();
-            }
+              if (chartAssetCategoryInstance) {
+                chartAssetCategoryInstance.destroy();
+              }
 
-            chartAssetCategoryInstance = new Chart(canvas, {
-              type: 'bar',
-              data: {
-                labels: apiData.labels,
-                datasets: [{
-                  label: '# of asset per category',
-                  data: apiData.data,
-                  backgroundColor: baseColors.map(c => withAlpha(c, 'B3')),
-                  borderColor: baseColors,
-                  borderWidth: 1
-                }]
-              },
-              options: {
-                plugins: {
-                  legend: {
-                    labels: { color: '#FFFFFF' }
-                  },
-                  tooltip: {
-                    titleColor: '#FFFFFF',
-                    bodyColor: '#FFFFFF'
-                  }
+              chartAssetCategoryInstance = new Chart(canvas, {
+                type: 'bar',
+                data: {
+                  labels: apiData.labels,
+                  datasets: [{
+                    label: '# of asset per category',
+                    data: apiData.data,
+                    backgroundColor: baseColors.map((c) => addAlpha(c, 'B3')),
+                    borderColor: baseColors,
+                    borderWidth: 1
+                  }]
                 },
-                scales: {
-                  y: {
-                    beginAtZero: true,
-                    ticks: { color: '#FFFFFF' }
+                options: {
+                  plugins: {
+                    legend: {
+                      labels: { color: '#FFFFFF' }
+                    },
+                    tooltip: {
+                      titleColor: '#FFFFFF',
+                      bodyColor: '#FFFFFF'
+                    }
                   },
-                  x: {
-                    ticks: { color: '#FFFFFF' }
+                  scales: {
+                    y: { beginAtZero: true, ticks: { color: '#FFFFFF' } },
+                    x: { ticks: { color: '#FFFFFF' } }
                   }
                 }
-              }
-            });
+              });
 
-          } catch (error) {
-            console.error('Chyba pri vykresľovaní grafu (asset category):', error);
-            if (errorEl) {
-              errorEl.textContent = 'Nepodarilo sa načítať dáta grafu.';
+            } catch (error) {
+              console.error('Chyba pri vykresľovaní grafu (asset category):', error);
+              if (errorEl) errorEl.textContent = 'Nepodarilo sa načítať dáta grafu.';
             }
           }
-        }
 
-        document.addEventListener('DOMContentLoaded', () => {
-          loadAndRenderAssetCategoryChart();
-        });
+          document.addEventListener('DOMContentLoaded', () => {
+            loadAndRenderAssetCategoryChart();
+          });
+        })();
       </script>
     </div>
     
