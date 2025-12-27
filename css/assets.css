@@ -1,0 +1,60 @@
+.pagination {
+    display: flex;
+    flex-wrap: wrap;
+    gap:10px;    
+    margin-top: 20px;
+}
+
+.asset_item {
+    padding: 10px;
+    border-bottom: 1px solid #ccc;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+#asset_header {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 5px;
+    margin-bottom: 15px;
+}
+
+.ticker_symbol {
+    font-weight: bold;
+    font-size: 1.2em;
+    width: 100px;
+}
+
+.company_name {
+    flex: 1;
+    margin-left: 20px;
+    font-size: 1.1em;
+    margin-right: 10px;
+    width:15%;
+}
+.short_name {
+    width: 20%;
+    display: flex;
+    margin-right: 10px;
+    align-items: center;
+    justify-content: center;
+}
+
+.website{
+    width: 25%;
+    display: flex;
+    margin-right: 10px;
+    align-items: center;
+    justify-content: center;
+}
+
+table a {
+    color: #f3f5f8;
+    text-decoration: none;
+}
+
+table a:hover {
+    text-decoration: underline;
+}

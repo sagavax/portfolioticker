@@ -1,12 +1,9 @@
 <?php
 
-error_reporting(E_ALL); 
-ini_set('display_errors', 1);
 
     include('includes/dbconnect.php');
     include('includes/functions.php');
-
-       
+     
    $asset = mysqli_real_escape_string($link, $_GET['asset']);
 
 
