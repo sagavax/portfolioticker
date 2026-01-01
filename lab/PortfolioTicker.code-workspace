@@ -1,0 +1,32 @@
+{
+	"folders": [
+		{
+			"path": "."
+		},
+		{
+			"path": "../PortfolioTicker_offline"
+		}
+	],
+	"settings": {
+		"workbench.colorCustomizations": {
+			"activityBar.activeBackground": "#1db39e",
+			"activityBar.background": "#1db39e",
+			"activityBar.foreground": "#15202b",
+			"activityBar.inactiveForeground": "#15202b99",
+			"activityBarBadge.background": "#f7e4fb",
+			"activityBarBadge.foreground": "#15202b",
+			"commandCenter.border": "#e7e7e799",
+			"sash.hoverBorder": "#1db39e",
+			"statusBar.background": "#168777",
+			"statusBar.foreground": "#e7e7e7",
+			"statusBarItem.hoverBackground": "#1db39e",
+			"statusBarItem.remoteBackground": "#168777",
+			"statusBarItem.remoteForeground": "#e7e7e7",
+			"titleBar.activeBackground": "#168777",
+			"titleBar.activeForeground": "#e7e7e7",
+			"titleBar.inactiveBackground": "#16877799",
+			"titleBar.inactiveForeground": "#e7e7e799"
+		},
+		"peacock.color": "#168777"
+	}
+}
