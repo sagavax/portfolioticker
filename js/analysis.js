@@ -1,6 +1,17 @@
 const newAnalysis = document.getElementById("newAnalysis"); //newAnalysis
 const modalNewAnalysisSave = document.getElementById("modalNewAnalysisSave");
 const modalNewAnalysisClose = document.getElementById("modalNewAnalysisClose");
+const analysisText = document.querySelector(".analysis-item p");
+const analysisList = document.querySelector(".analysis-list");
+
+
+
+
+analysisList.addEventListener('click', function(e) {
+        //analysis text
+        analysisText.innerHTML = e.target.innerHTML; 
+        console.log(e.target.innerHTML);
+});
 
 
 newAnalysis.addEventListener('click', function(e) {

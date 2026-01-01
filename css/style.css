@@ -354,6 +354,7 @@
 
     .analysis-item:hover {
       background-color: #5f7eaa;
+      cursor: pointer;
     }
 
     .analysis-item h3 {
